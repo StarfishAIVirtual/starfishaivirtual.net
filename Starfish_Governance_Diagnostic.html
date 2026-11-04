@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Starfish Governance Diagnostic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0C1B33;--navy2:#13284a;--gold:#D4AF37;--paper:#F7F4EC;--ink:#1d2433;--muted:#5d6678;--line:#e3dccb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif;line-height:1.55}
+header{background:var(--navy);color:#fff;padding:28px 16px 34px;text-align:center;border-bottom:3px solid var(--gold)}
+header svg{width:72px;height:72px}
+.brand{font-family:Fraunces,Georgia,serif;letter-spacing:.18em;font-size:14px;color:var(--gold);margin-top:6px}
+h1{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:30px;margin:10px 0 6px}
+header p{max-width:620px;margin:0 auto;color:#d7dce6}
+main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
+.intro{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:16px 18px;margin-bottom:22px;color:var(--muted)}
+.q{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px}
+.q .tag{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.q h2{font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:600;margin:4px 0 12px;color:var(--navy)}
+label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer}
+label:hover{border-color:var(--gold)}
+input{margin-top:4px;accent-color:var(--navy)}
+button{display:block;width:100%;padding:14px;border:0;border-radius:8px;background:var(--navy);color:#fff;font-size:16px;font-weight:600;cursor:pointer;border-bottom:3px solid var(--gold)}
+button:disabled{opacity:.45;cursor:not-allowed}
+#result{display:none;margin-top:24px;background:var(--navy);color:#fff;border-radius:12px;padding:24px 20px}
+#result h2{font-family:Fraunces,Georgia,serif;color:var(--gold);margin:0 0 4px;font-size:24px}
+.score{font-size:14px;color:#c9d0dd;margin-bottom:12px}
+.bar{height:10px;background:#2a3d60;border-radius:6px;overflow:hidden;margin:10px 0 18px}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,#3B82F6,#22C55E,#D4AF37)}
+.notes{background:var(--navy2);border-radius:8px;padding:14px 16px;margin-top:12px}
+.notes h3{font-family:Fraunces,Georgia,serif;font-size:16px;margin:0 0 6px;color:var(--gold)}
+.notes ul{margin:0;padding-left:18px}
+.notes li{margin-bottom:6px;color:#e3e7ef}
+.cta{margin-top:16px;color:#d7dce6;font-size:14px}
+.cta a{color:var(--gold)}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 32px}
+</style>
+</head>
+<body>
+<header>
+<svg viewBox="0 0 100 100" aria-label="Starfish">
+<g transform="translate(50,52)">
+<path d="M0,-6 C6,-20 4,-40 0,-44 C-4,-40 -6,-20 0,-6Z" fill="#22C55E"/>
+<path d="M0,-6 C6,-20 4,-40 0,-44 C-4,-40 -6,-20 0,-6Z" fill="#EF4444" transform="rotate(72)"/>
+<path d="M0,-6 C6,-20 4,-40 0,-44 C-4,-40 -6,-20 0,-6Z" fill="#F59E0B" transform="rotate(144)"/>
+<path d="M0,-6 C6,-20 4,-40 0,-44 C-4,-40 -6,-20 0,-6Z" fill="#FFD700" transform="rotate(216)"/>
+<path d="M0,-6 C6,-20 4,-40 0,-44 C-4,-40 -6,-20 0,-6Z" fill="#3B82F6" transform="rotate(288)"/>
+<circle r="9" fill="#0C1B33" stroke="#D4AF37" stroke-width="2.5"/>
+</g></svg>
+<div class="brand">STARFISH AI VIRTUAL</div>
+<h1>Governance Diagnostic</h1>
+<p>Where does your organization sit between AI Version 1.x and AI Version 2.0?</p>
+</header>
+<main>
+<div class="intro">This is an invitation to reflect, not a test of AI knowledge. Five short questions about how decisions are made in your organization when AI is involved. There are no wrong answers, and nothing you choose leaves this page.</div>
+<form id="f"></form>
+<button id="go" disabled>See where you stand</button>
+<div id="result"></div>
+</main>
+<footer>Starfish AI Virtual &middot; AI Governance Consultancy &middot; Le X. My<br>(408) 439-9146 &middot; StarfishAIVirtual@gmail.com</footer>
+<script>
+const Q=[
+{tag:"Human-In-Command",t:"When an AI tool makes a recommendation, who makes the final call?",o:["The AI's output usually goes ahead as it is","Whoever happens to be using the tool decides","A named person reviews it for important matters","A named, accountable person always decides, and it's written down"],tip:"Name one accountable person for each AI-assisted decision area, so the final call is always a human's."},
+{tag:"Ethical Gate",t:"Before an AI-assisted decision reaches a customer or the public, is there a deliberate pause to check it?",o:["Not really, speed comes first","Sometimes, depending on who's involved","Yes, for the most sensitive decisions","Yes, defined checkpoints that every such decision passes through"],tip:"Set a few clear checkpoints where AI-assisted work pauses for a human look before it goes out."},
+{tag:"Accountability",t:"If you asked today, could your team name who is responsible for each AI system you use?",o:["We'd have to find out","For some of them","For most of them","Yes, there's a current list everyone can see"],tip:"Keep a simple, current register of every AI system and the person who answers for it."},
+{tag:"Iteration Cap",t:"When AI output isn't right, how many attempts happen before a person steps in?",o:["We keep regenerating until something looks acceptable","It depends on the person","There's a rough habit of escalating after a while","There's an agreed limit, after which a person takes over"],tip:"Agree on a small number of AI retries; after that, a person takes the decision back."},
+{tag:"Decision Record",t:"Is there a record of important AI-assisted decisions, including when someone overrode the AI?",o:["No record is kept","Scattered in emails and chats","Recorded for some areas","Yes, a consistent log with reasons for any override"],tip:"Keep one decision log: what was decided, who decided, and why any AI advice was overridden."}
+];
+const f=document.getElementById('f'),go=document.getElementById('go'),r=document.getElementById('result');
+Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+d.innerHTML='<div class="tag">'+(i+1)+' of 5 &middot; '+q.tag+'</div><h2>'+q.t+'</h2>'+q.o.map((o,j)=>'<label><input type="radio" name="q'+i+'" value="'+j+'"> <span>'+o+'</span></label>').join('');
+f.appendChild(d)});
+f.addEventListener('change',()=>{go.disabled=f.querySelectorAll('input:checked').length<5});
+go.addEventListener('click',()=>{
+let s=0,low=[];Q.forEach((q,i)=>{const v=+f.querySelector('input[name=q'+i+']:checked').value;s+=v;if(v<2)low.push(q)});
+let title,msg;
+if(s<=5){title="AI Version 1.x: Early Foundations";msg="AI is in use, but decisions are still flowing through it more than through your people. This is where most organizations start, and the next steps are simple and inexpensive."}
+else if(s<=10){title="In Transition toward AI Version 2.0";msg="Good instincts are in place in parts of the organization. The opportunity now is to make them consistent, so they don't depend on who happens to be in the room."}
+else{title="Approaching AI Version 2.0";msg="Humans are clearly in command of your AI. The remaining work is refinement: keeping records current and checkpoints sharp as AI use grows."}
+const pct=Math.round(s/15*100);
+let notes=low.length?'<div class="notes"><h3>Where to look first</h3><ul>'+low.map(q=>'<li><b>'+q.tag+':</b> '+q.tip+'</li>').join('')+'</ul></div>':'<div class="notes"><h3>Keep it strong</h3><ul><li>Revisit these five questions every quarter as new AI tools arrive.</li></ul></div>';
+r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">Would you like a conversation about these results? Contact Le X. My at <a href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or (408) 439-9146.</p>';
+r.style.display='block';r.scrollIntoView({behavior:'smooth'});
+});
+</script>
+</body>
+</html>

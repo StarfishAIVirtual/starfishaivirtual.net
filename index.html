@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Starfish AI Virtual</title>
+<meta name="description" content="Starfish AI Virtual — AI governance consultancy in Silicon Valley. Ethical Gate, Human-In-Command and Iteration Cap: frameworks that keep humans in command of AI decisions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0C1B33; --navy2:#13284a; --navy3:#1c3560;
+  --gold:#D4AF37; --gold-soft:#e9d58c;
+  --ink:#eef2f8; --muted:#b4c0d3;
+  --wood:#22C55E; --fire:#EF4444; --earth:#F59E0B; --metal:#FFD700; --water:#3B82F6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--gold-soft)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;line-height:1.15;font-weight:700}
+
+/* header */
+header{position:sticky;top:0;z-index:10;background:rgba(12,27,51,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(212,175,55,.25)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand svg{width:38px;height:38px}
+.brand b{font-family:Fraunces,serif;letter-spacing:.08em;font-size:15px;display:block;line-height:1.1}
+.brand small{color:var(--gold);font-size:10px;letter-spacing:.2em;display:block}
+nav a{color:var(--muted);text-decoration:none;font-size:14px;margin-left:22px}
+nav a:hover{color:var(--gold)}
+@media(max-width:640px){nav{display:none}}
+
+/* hero */
+.hero{padding:80px 0 70px;text-align:center;background:radial-gradient(ellipse at top,var(--navy3),var(--navy) 70%)}
+.hero .emblem{width:170px;height:170px;margin:0 auto 26px;display:block;filter:drop-shadow(0 10px 30px rgba(0,0,0,.45))}
+.eyebrow{color:var(--gold);letter-spacing:.22em;font-size:12px;font-weight:600;text-transform:uppercase}
+.hero h1{font-size:clamp(34px,6vw,58px);margin:14px auto 18px;max-width:820px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p.lead{color:var(--muted);font-size:clamp(16px,2.2vw,19px);max-width:640px;margin:0 auto 30px}
+.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 24px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary{background:var(--gold);color:var(--navy)}
+.btn.ghost{border:1px solid var(--gold);color:var(--gold)}
+.tag{margin-top:34px;font-family:Fraunces,serif;font-style:italic;color:var(--gold-soft)}
+
+section{padding:76px 0}
+.sec-head{text-align:center;margin-bottom:44px}
+.sec-head h2{font-size:clamp(28px,4.4vw,40px);margin-top:10px}
+.sec-head p{color:var(--muted);max-width:640px;margin:12px auto 0}
+
+/* frameworks */
+.gov{background:var(--navy2)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.card{background:var(--navy);border:1px solid rgba(212,175,55,.3);border-radius:14px;padding:28px}
+.card .n{color:var(--gold);font-family:Fraunces,serif;font-size:14px;letter-spacing:.15em}
+.card h3{font-size:23px;margin:8px 0 10px}
+.card p{color:var(--muted);font-size:15px}
+.diff{margin-top:36px;text-align:center;padding:22px;border-top:1px solid rgba(212,175,55,.25);color:var(--ink);font-size:17px}
+.diff b{color:var(--gold)}
+
+/* arms */
+.arms{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
+.arm{background:var(--navy2);border-radius:14px;padding:24px;border-top:4px solid var(--c)}
+.arm .el{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--c);font-weight:600}
+.arm h3{font-size:20px;margin:8px 0}
+.arm p{color:var(--muted);font-size:14px}
+.arm.flag{background:linear-gradient(180deg,rgba(34,197,94,.12),var(--navy2))}
+
+/* phone story */
+.phone{background:var(--navy2)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+@media(max-width:760px){.split{grid-template-columns:1fr}}
+.split h2{font-size:clamp(30px,4.6vw,44px);margin:10px 0 16px}
+.split p{color:var(--muted);margin-bottom:14px}
+.mock{margin:0 auto;width:230px;height:440px;border-radius:36px;border:3px solid var(--gold);background:var(--navy);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.mock:before{content:"";position:absolute;top:14px;width:70px;height:6px;border-radius:6px;background:rgba(212,175,55,.5)}
+.mock svg{width:120px;height:120px}
+.mock b{font-family:Fraunces,serif;margin-top:16px;letter-spacing:.1em}
+.mock small{color:var(--gold);font-size:11px;letter-spacing:.2em}
+
+/* credibility */
+.cred{text-align:center;padding:56px 0}
+.cred p{color:var(--muted);max-width:760px;margin:0 auto}
+.cred .logos{margin-top:18px;color:var(--ink);letter-spacing:.12em;font-size:14px;font-weight:600}
+
+/* contact */
+.contact{text-align:center;background:radial-gradient(ellipse at bottom,var(--navy3),var(--navy) 70%)}
+.contact h2{font-size:clamp(28px,4.4vw,40px);margin:10px 0 14px}
+.contact .who{font-family:Fraunces,serif;font-size:22px;margin-top:20px}
+.contact .role{color:var(--gold);font-size:13px;letter-spacing:.15em;text-transform:uppercase}
+.contact ul{list-style:none;margin-top:22px;display:grid;gap:10px}
+.contact li a{text-decoration:none;font-size:17px}
+.contact li.li a{white-space:nowrap;font-size:15px}
+footer{border-top:1px solid rgba(212,175,55,.25);padding:26px 0;text-align:center;color:var(--muted);font-size:13px}
+footer .els{letter-spacing:.2em;font-size:11px;margin-bottom:8px}
+footer .els span{font-weight:600}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <path id="arm" d="M0,-10 C16,-24 11,-74 0,-92 C-11,-74 -16,-24 0,-10Z"/>
+    <linearGradient id="shine" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#fff" stop-opacity=".45"/>
+      <stop offset=".6" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <g id="star">
+      <circle r="98" fill="none" stroke="#D4AF37" stroke-width="3"/>
+      <g transform="rotate(0)"><use href="#arm" fill="#FFD700"/><use href="#arm" fill="url(#shine)"/></g>
+      <g transform="rotate(72)"><use href="#arm" fill="#3B82F6"/><use href="#arm" fill="url(#shine)"/></g>
+      <g transform="rotate(144)"><use href="#arm" fill="#22C55E"/><use href="#arm" fill="url(#shine)"/></g>
+      <g transform="rotate(216)"><use href="#arm" fill="#F59E0B"/><use href="#arm" fill="url(#shine)"/></g>
+      <g transform="rotate(288)"><use href="#arm" fill="#EF4444"/><use href="#arm" fill="url(#shine)"/></g>
+      <circle r="17" fill="#0C1B33" stroke="#D4AF37" stroke-width="2.5"/>
+    </g>
+  </defs>
+</svg>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#top">
+      <svg viewBox="-102 -102 204 204" aria-hidden="true"><use href="#star"/></svg>
+      <span><b>STARFISH AI VIRTUAL</b><small>AI CONSULTANCY</small></span>
+    </a>
+    <nav>
+      <a href="#governance">Governance</a>
+      <a href="#arms">Five Arms</a>
+      <a href="#phone">Our Story</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="wrap">
+    <svg class="emblem" viewBox="-102 -102 204 204" role="img" aria-label="Starfish AI Virtual emblem"><use href="#star"/></svg>
+    <div class="eyebrow">AI Governance &middot; Silicon Valley</div>
+    <h1>Put humans back <em>in command</em> of AI.</h1>
+    <p class="lead">Starfish AI Virtual helps leaders decide who holds authority over AI-assisted decisions, and who answers for them, before the decisions reach your customers.</p>
+    <div class="btns">
+      <a class="btn primary" href="Starfish_Governance_Diagnostic.html">Take the 2-minute Governance Diagnostic</a>
+      <a class="btn ghost" href="#contact">Talk with us</a>
+    </div>
+    <p class="tag">Smarter Solutions. A Brighter Future.</p>
+  </div>
+</section>
+
+<section class="gov" id="governance">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Our Frameworks</div>
+      <h2>Three gates between AI and your reputation</h2>
+      <p>Proprietary Starfish frameworks built on four decades of systems and performance engineering.</p>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="n">01</div>
+        <h3>Ethical Gate</h3>
+        <p>A defined checkpoint every AI-assisted decision passes before it reaches a customer or the public, with a named person who can stop it.</p>
+      </div>
+      <div class="card">
+        <div class="n">02</div>
+        <h3>Human-In-Command</h3>
+        <p>AI recommends; people decide. Clear lines of authority so the final call, and the accountability, always sits with a human.</p>
+      </div>
+      <div class="card">
+        <div class="n">03</div>
+        <h3>Iteration Cap</h3>
+        <p>A limit on how many times AI output is retried before a person steps in, so errors don't quietly compound.</p>
+      </div>
+    </div>
+    <p class="diff">We focus on <b>decision authority and human accountability</b>, not checkbox compliance tooling.</p>
+  </div>
+</section>
+
+<section id="arms">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">One Starfish &middot; Five Arms</div>
+      <h2>Five practices, each able to stand on its own</h2>
+      <p>Like a starfish, every arm is self-sustaining, and together they move as one.</p>
+    </div>
+    <div class="arms">
+      <div class="arm flag" style="--c:var(--wood)">
+        <div class="el">Wood &middot; Flagship</div>
+        <h3>Fintech</h3>
+        <p>AI-driven client acquisition for high-net-worth relationships.</p>
+      </div>
+      <div class="arm" style="--c:var(--fire)">
+        <div class="el">Fire</div>
+        <h3>AI Technology</h3>
+        <p>Systems and infrastructure engineering, and the engine behind every other arm.</p>
+      </div>
+      <div class="arm" style="--c:var(--metal)">
+        <div class="el">Metal</div>
+        <h3>AI Governance</h3>
+        <p>Ethical Gate, Human-In-Command and Iteration Cap, applied to your organization.</p>
+      </div>
+      <div class="arm" style="--c:var(--earth)">
+        <div class="el">Earth</div>
+        <h3>Business Consulting</h3>
+        <p>Organizational performance, executive transition and M&amp;A integration advisory.</p>
+      </div>
+      <div class="arm" style="--c:var(--water)">
+        <div class="el">Water</div>
+        <h3>Tech Search</h3>
+        <p>Competitive intelligence, market and technology scouting, and due diligence.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="phone" id="phone">
+  <div class="wrap split">
+    <div>
+      <div class="eyebrow">Our Story</div>
+      <h2>Your phone. Your supercomputer.</h2>
+      <p>Starfish began on two prepaid phones. We proved the architecture works on public Wi-Fi, including on VTA bus rides across Silicon Valley.</p>
+      <p>The point is simple: world-class AI no longer needs a data center or a big-firm budget. With the right guidance, the phone in your hand is enough.</p>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <svg viewBox="-102 -102 204 204"><use href="#star"/></svg>
+      <b>STARFISH</b>
+      <small>AI VIRTUAL</small>
+    </div>
+  </div>
+</section>
+
+<section class="cred">
+  <div class="wrap">
+    <div class="eyebrow">Experience</div>
+    <p style="margin-top:12px">Led by an engineer with 40+ years in systems and performance engineering leadership, including the 100,000 IOPS SPC-1 world record.</p>
+    <div class="logos">IBM &nbsp;&middot;&nbsp; SUN MICROSYSTEMS &nbsp;&middot;&nbsp; 3PAR &nbsp;&middot;&nbsp; ORACLE CONSULTING &nbsp;&middot;&nbsp; CHARLES SCHWAB</div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="eyebrow">Contact</div>
+    <h2>CEO to CEO delivery</h2>
+    <p style="color:var(--muted)">Start with a conversation. We'll show you where you stand.</p>
+    <div class="who">Le X. My</div>
+    <div class="role">Founder &middot; AI Governance Consultant</div>
+    <ul>
+      <li><a href="tel:+14088878724">(408) 887-8724</a></li>
+      <li><a href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a></li>
+      <li class="li"><a href="https://www.linkedin.com/in/le-my-8201b938" target="_blank" rel="noopener">www.linkedin.com/in/le-my-8201b938</a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="els"><span style="color:var(--metal)">METAL</span> &middot; <span style="color:var(--water)">WATER</span> &middot; <span style="color:var(--wood)">WOOD</span> &middot; <span style="color:var(--earth)">EARTH</span> &middot; <span style="color:var(--fire)">FIRE</span></div>
+    &copy; <span id="y">2026</span> Starfish Enterprises International &middot; San Jose, California
+  </div>
+</footer>
+<script>try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}</script>
+</body>
+</html>
