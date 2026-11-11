@@ -1,0 +1,98 @@
+/* Starfish site analytics (Google Analytics 4), shared by every page.
+
+   Consent rules:
+   - A browser sending Global Privacy Control is never tracked.
+   - A visitor's saved choice (Accept / Decline) is always respected.
+   - With no saved choice, visitors whose time zone is in Europe see a banner
+     and are only tracked after they accept; everyone else is tracked and can
+     turn it off from "Cookie settings" in the footer.
+   Google Signals and ad personalization are switched off, so analytics data
+   is never used for advertising.
+
+   Pages send events with starfishTrack(name, params); links can instead carry
+   data-track="event_name" (and optional data-label). */
+(function(){
+  var ID='G-7PHFWL1CXN', KEY='starfish-analytics-consent';
+  var loaded=false, banner=null;
+
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){window.dataLayer.push(arguments);}
+  window.gtag=gtag;
+
+  function stored(){try{return localStorage.getItem(KEY);}catch(e){return null;}}
+  function store(v){try{localStorage.setItem(KEY,v);}catch(e){}}
+  function inEurope(){
+    try{return /^(Europe|Atlantic\/(Canary|Madeira|Azores|Faroe|Reykjavik))/.test(Intl.DateTimeFormat().resolvedOptions().timeZone||'');}
+    catch(e){return false;}
+  }
+  var gpc=navigator.globalPrivacyControl===true;
+
+  function load(){
+    if(loaded||gpc)return;
+    loaded=true;
+    window['ga-disable-'+ID]=false;
+    gtag('js',new Date());
+    gtag('config',ID,{allow_google_signals:false,allow_ad_personalization_signals:false});
+    var s=document.createElement('script');
+    s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;
+    document.head.appendChild(s);
+  }
+  function stop(){
+    window['ga-disable-'+ID]=true;
+    loaded=false;
+    /* Remove Google Analytics cookies already set on this site. */
+    document.cookie.split(';').forEach(function(c){
+      var name=c.split('=')[0].trim();
+      if(/^_ga/.test(name)){
+        var host=location.hostname, parts=host.split('.');
+        var domains=['',host,'.'+host];
+        if(parts.length>1)domains.push('.'+parts.slice(-2).join('.'));
+        domains.forEach(function(d){
+          document.cookie=name+'=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'+(d?'; domain='+d:'');
+        });
+      }
+    });
+  }
+
+  /* Send an event only when analytics is on. */
+  window.starfishTrack=function(name,params){if(loaded)gtag('event',name,params||{});};
+
+  function showBanner(){
+    if(banner){banner.hidden=false;return;}
+    var css=document.createElement('style');
+    css.textContent='.sf-consent{position:fixed;left:12px;right:12px;bottom:12px;z-index:50;max-width:720px;margin:0 auto;'+
+      'background:#0C1B33;color:#eef2f8;border:1px solid #D4AF37;border-radius:12px;padding:14px 16px;'+
+      'box-shadow:0 10px 30px rgba(0,0,0,.4);font:14px/1.5 Inter,system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}'+
+      '.sf-consent[hidden]{display:none}.sf-consent p{flex:1 1 260px;margin:0}.sf-consent a{color:#e9d58c}'+
+      '.sf-consent button{font:600 14px Inter,system-ui,sans-serif;border-radius:999px;padding:8px 16px;cursor:pointer;width:auto}'+
+      '.sf-consent .yes{background:#D4AF37;color:#0C1B33;border:0}.sf-consent .no{background:none;color:#D4AF37;border:1px solid #D4AF37}';
+    document.head.appendChild(css);
+    banner=document.createElement('div');
+    banner.className='sf-consent';banner.setAttribute('role','region');banner.setAttribute('aria-label','Cookie choice');
+    banner.innerHTML='<p>We use Google Analytics cookies to see how this site is used. Nothing is used for advertising. '+
+      '<a href="privacy.html">Privacy</a></p><button type="button" class="no">Decline</button><button type="button" class="yes">Accept</button>';
+    banner.querySelector('.yes').onclick=function(){store('granted');banner.hidden=true;load();};
+    banner.querySelector('.no').onclick=function(){store('denied');banner.hidden=true;stop();};
+    document.body.appendChild(banner);
+  }
+
+  var choice=stored();
+  if(!gpc){
+    if(choice==='granted')load();
+    else if(choice!=='denied'&&!inEurope())load();
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    if(!gpc&&choice===null&&inEurope())showBanner();
+    document.querySelectorAll('[data-cookie-settings]').forEach(function(a){
+      if(gpc){a.textContent='Analytics off (Global Privacy Control)';a.removeAttribute('href');return;}
+      a.addEventListener('click',function(e){e.preventDefault();showBanner();});
+    });
+  });
+
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('[data-track]');
+    if(a)window.starfishTrack(a.getAttribute('data-track'),
+      {link_label:a.getAttribute('data-label')||a.textContent.trim(),page:location.pathname});
+  });
+})();
