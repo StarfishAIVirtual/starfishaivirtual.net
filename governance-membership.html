@@ -237,7 +237,7 @@ footer .els span{font-weight:600}
       <div class="tier">
         <h3>Starfish Member</h3>
         <div class="for">For leaders taking their first deliberate steps with AI.</div>
-        <div class="price" data-price="member">$1,500<small> / year</small></div>
+        <div class="price" data-price="member">$495<small> / year</small></div>
         <ul>
           <li>Access to the full governance kit catalog at member prices</li>
           <li>Quarterly Governance Diagnostic review with a written readout</li>
@@ -251,7 +251,7 @@ footer .els span{font-weight:600}
         <span class="badge">Best value for AI-heavy teams</span>
         <h3>Starfish Command Member</h3>
         <div class="for">For organizations running several AI systems in customer-facing work.</div>
-        <div class="price" data-price="command">$3,000<small> / year</small></div>
+        <div class="price" data-price="command">$1,995<small> / year</small></div>
         <ul>
           <li>Everything in Starfish Member</li>
           <li><b>10% back</b> on all kit purchases as credit toward next year</li>
@@ -277,32 +277,32 @@ footer .els span{font-weight:600}
       <div class="item" style="--c:var(--metal)">
         <span class="dot"></span>
         <div><h3>Ethical Gate Kit</h3><p>Define the checkpoints every AI-assisted decision passes before it reaches a customer, and name who can stop it.</p></div>
-        <div class="pp"><b>$450</b><span>member price</span></div>
+        <div class="pp"><b>$795</b><span>member price</span></div>
       </div>
       <div class="item" style="--c:var(--water)">
         <span class="dot"></span>
         <div><h3>Human-In-Command Authority Map</h3><p>One accountable person for each AI-assisted decision area, written down and agreed by leadership.</p></div>
-        <div class="pp"><b>$450</b><span>member price</span></div>
+        <div class="pp"><b>$795</b><span>member price</span></div>
       </div>
       <div class="item" style="--c:var(--wood)">
         <span class="dot"></span>
         <div><h3>Iteration Cap Policy</h3><p>An agreed limit on AI retries before a person takes the decision back, tuned to each workflow.</p></div>
-        <div class="pp"><b>$300</b><span>member price</span></div>
+        <div class="pp"><b>$395</b><span>member price</span></div>
       </div>
       <div class="item" style="--c:var(--earth)">
         <span class="dot"></span>
         <div><h3>AI System Register</h3><p>A current, visible list of every AI tool in use and the person who answers for it.</p></div>
-        <div class="pp"><b>$350</b><span>member price</span></div>
+        <div class="pp"><b>$495</b><span>member price</span></div>
       </div>
       <div class="item" style="--c:var(--fire)">
         <span class="dot"></span>
         <div><h3>Decision Log Setup</h3><p>One consistent log of important AI-assisted decisions, including who overrode the AI and why.</p></div>
-        <div class="pp"><b>$350</b><span>member price</span></div>
+        <div class="pp"><b>$495</b><span>member price</span></div>
       </div>
       <div class="item bundle" style="--c:var(--gold)">
         <span class="dot"></span>
-        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. The bulk buy.</p></div>
-        <div class="pp"><b>$1,500</b><span>save $400</span></div>
+        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. With a Starfish Membership, your whole AI portfolio is governed for under $3,000 in year one.</p></div>
+        <div class="pp"><b>$2,250</b><span>save $725</span></div>
       </div>
     </div>
     <p class="fine">Kits are available to members only. Travel outside Silicon Valley, if needed, is billed at cost.</p>
@@ -321,11 +321,11 @@ footer .els span{font-weight:600}
       <input type="range" id="sys" min="1" max="20" value="3">
       <div style="margin-top:20px;font-weight:600">Kits you'd want this year</div>
       <div class="checks" id="kits">
-        <label><input type="checkbox" value="450" checked> Ethical Gate</label>
-        <label><input type="checkbox" value="450" checked> Human-In-Command</label>
-        <label><input type="checkbox" value="300"> Iteration Cap</label>
-        <label><input type="checkbox" value="350"> AI Register</label>
-        <label><input type="checkbox" value="350"> Decision Log</label>
+        <label><input type="checkbox" value="795" checked> Ethical Gate</label>
+        <label><input type="checkbox" value="795" checked> Human-In-Command</label>
+        <label><input type="checkbox" value="395"> Iteration Cap</label>
+        <label><input type="checkbox" value="495"> AI Register</label>
+        <label><input type="checkbox" value="495"> Decision Log</label>
       </div>
       <div class="rec" id="rec" aria-live="polite"></div>
     </div>
@@ -394,7 +394,7 @@ footer .els span{font-weight:600}
 
 <script>
 /* Pricing lives here so it can be changed in one place. */
-const PRICE={member:1500,command:3000,bundle:1500,reward:0.10};
+const PRICE={member:495,command:1995,bundle:2250,reward:0.10};
 const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
 try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}
 
