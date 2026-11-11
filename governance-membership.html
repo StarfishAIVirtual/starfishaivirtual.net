@@ -4,12 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Google Analytics with cookie choice: see analytics.js -->
-<script src="analytics.js"></script>
+<script src="analytics.js" defer></script>
 <title>Starfish Governance Membership</title>
 <meta name="description" content="Starfish Governance Membership: AI governance on a membership model. One annual fee, a short catalog of governance kits at published near-cost prices, and a refund if it isn't worth it.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
 :root{
   --navy:#0C1B33; --navy2:#13284a; --navy3:#1c3560;
@@ -557,7 +555,7 @@ let calcUsed=false,calcLast='';
 function used(){update();calcUsed=true;}
 function sendCalc(){
   if(!calcUsed||!window.starfishTrack)return;
-  const picked=[...kits.querySelectorAll('input:checked')].map(i=>i.dataset.kit);
+  const picked=[...kits.querySelectorAll('input:checked')].map(i=>i.dataset.kit).filter(k=>kitPrice(k)!==undefined);
   const p={ai_systems:+sys.value,kits_selected:picked.length};
   const key=p.ai_systems+'/'+picked.join(',');
   if(key===calcLast)return;
