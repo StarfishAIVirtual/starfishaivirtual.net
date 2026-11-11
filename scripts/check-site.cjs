@@ -78,7 +78,6 @@ for (const page of PAGES) {
     let file;
     try { file = decodeURIComponent(rawPath); }
     catch (e) { problems.push(page + ': malformed link "' + ref + '"'); return; }
-    /* A path starting with / is from the site root; "/" alone is the home page. */
     /* A non-empty path that resolves to the site folder ('/', './') is the home page. */
     const hadPath = file.length > 0;
     file = file.replace(/^(\.\/|\/)+/, '');
