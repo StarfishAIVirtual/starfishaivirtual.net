@@ -294,7 +294,7 @@ footer .els span{font-weight:600}
         <div><h3>Decision Log Setup</h3><p>One consistent log of important AI-assisted decisions, including who overrode the AI and why.</p></div>
         <div class="pp"><b data-kit-price="log">$495</b><span data-requires="kit:log">member price</span></div>
       </div>
-      <div class="item bundle" style="--c:var(--gold)">
+      <div class="item bundle" style="--c:var(--gold)" data-requires="bundle">
         <span class="dot"></span>
         <div><h3><span data-fill="bundle-name">Five-Arm</span> Governance Bundle</h3><p>All <span data-fill="bundle-count">five</span> kits in one engagement, covering every AI system you run. <span data-requires="year1">With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</span></p></div>
         <div class="pp"><b data-fill="bundle">$2,250</b><span data-requires="bundle-save">save <span data-fill="bundle-save">$725</span></span></div>
@@ -450,18 +450,21 @@ const VALID_KITS=Object.keys(KITS).filter(k=>KIT_OK[k]);
 /* The bundle is offered when its price is valid and it names distinct, listed kits.
    One kit with a bad price doesn't withdraw it; only the "save" figure needs every price. */
 const BUNDLE_KITS=Array.isArray(PRICE.bundleKits)?PRICE.bundleKits:[];
-const BUNDLE_NAME=countWord(BUNDLE_KITS.length)+'-Arm';
 const BUNDLE_OK=(function(){
   if(!Array.isArray(PRICE.bundleKits)){console.error('PRICE.bundleKits must be a list of kit names.');return false;}
   let ok=SCALAR_OK.bundle;
+  if(!BUNDLE_KITS.length){console.error('PRICE.bundleKits is empty.');ok=false;}
   const seen=new Set();
   BUNDLE_KITS.forEach(k=>{
     if(seen.has(k)){console.error('PRICE.bundleKits lists "'+k+'" more than once.');ok=false;}
     seen.add(k);
     if(!own(KITS,k)){console.error('PRICE.bundleKits names "'+k+'", which is not in PRICE.kits.');ok=false;}
   });
+  const missing=Object.keys(KITS).filter(k=>!seen.has(k));
+  if(ok&&missing.length)console.warn('The bundle copy says it covers every kit, but PRICE.bundleKits leaves out: '+missing.join(', ')+'.');
   return ok;
 })();
+const BUNDLE_NAME=countWord(new Set(BUNDLE_KITS).size)+'-Arm';
 const SAVE=BUNDLE_OK&&BUNDLE_KITS.every(k=>kitPrice(k)!==undefined)
   ?BUNDLE_KITS.reduce((a,k)=>a+kitPrice(k),0)-PRICE.bundle:NaN;
 
@@ -470,7 +473,7 @@ const SAVE=BUNDLE_OK&&BUNDLE_KITS.every(k=>kitPrice(k)!==undefined)
   const VALID={member:SCALAR_OK.member,command:SCALAR_OK.command,reward:SCALAR_OK.reward,
     bundle:BUNDLE_OK,year1:BUNDLE_OK&&SCALAR_OK.member,'bundle-save':SAVE>0};
   const V={session:SESSION_CARD,'kit-count':countWord(VALID_KITS.length),
-    'bundle-count':countWord(BUNDLE_KITS.length).toLowerCase(),'bundle-name':BUNDLE_NAME,
+    'bundle-count':BUNDLE_OK?countWord(BUNDLE_KITS.length).toLowerCase():null,'bundle-name':BUNDLE_OK?BUNDLE_NAME:null,
     'bundle-save':VALID['bundle-save']?fmt(SAVE):null,
     year1:VALID.year1?fmt(PRICE.member+PRICE.bundle):null};
   for(const k in SCALARS)V[k]=VALID[k]?SCALARS[k].show(PRICE[k]):SCALARS[k].fallback;
@@ -508,6 +511,9 @@ const SAVE=BUNDLE_OK&&BUNDLE_KITS.every(k=>kitPrice(k)!==undefined)
     if(kitPrice(k)===undefined)i.closest('label').hidden=true;
   });
   Object.keys(KITS).forEach(k=>{if(!boxes.some(i=>i.dataset.kit===k))console.error('PRICE.kits.'+k+' has no checkbox in the calculator.');});
+  /* The Diagnostic links to each kit's card by id="kit-<name>"; report a missing card. */
+  Object.keys(KITS).forEach(k=>{if(!document.getElementById('kit-'+k))console.error('PRICE.kits.'+k+' has no catalog card with id="kit-'+k+'".');});
+  if(/^#kit-/.test(location.hash)&&!document.getElementById(location.hash.slice(1)))console.error('Link to '+location.hash+' has no matching kit card.');
 })();
 try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}
 
@@ -551,11 +557,12 @@ let calcUsed=false,calcLast='';
 function used(){update();calcUsed=true;}
 function sendCalc(){
   if(!calcUsed||!window.starfishTrack)return;
-  const p={ai_systems:+sys.value,kits_selected:kits.querySelectorAll('input:checked').length};
-  const key=p.ai_systems+'/'+p.kits_selected;
+  const picked=[...kits.querySelectorAll('input:checked')].map(i=>i.dataset.kit);
+  const p={ai_systems:+sys.value,kits_selected:picked.length};
+  const key=p.ai_systems+'/'+picked.join(',');
   if(key===calcLast)return;
-  calcLast=key;
-  window.starfishTrack('calculator_used',Object.assign({transport_type:'beacon'},p));
+  /* Remember the choices only once the event was really sent (analytics may be off until Accept). */
+  if(window.starfishTrack('calculator_used',Object.assign({transport_type:'beacon'},p)))calcLast=key;
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')sendCalc();});
 window.addEventListener('pagehide',sendCalc);

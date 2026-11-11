@@ -13,7 +13,7 @@
    data-track="event_name" (and optional data-label). */
 (function(){
   var ID='G-7PHFWL1CXN', KEY='starfish-analytics-consent';
-  var loaded=false, scriptAdded=false, banner=null;
+  var loaded=false, scriptAdded=false, stoppedSince=false, banner=null;
 
   window.dataLayer=window.dataLayer||[];
   function gtag(){window.dataLayer.push(arguments);}
@@ -22,8 +22,8 @@
   function stored(){try{return localStorage.getItem(KEY);}catch(e){return null;}}
   function store(v){try{localStorage.setItem(KEY,v);}catch(e){}}
   /* EU/EEA/UK time zones, including those outside the Europe/ prefix
-     (Cyprus, Svalbard and the EU's outermost regions). */
-  var EU_EXTRA=['Asia/Nicosia','Asia/Famagusta','Arctic/Longyearbyen','Indian/Reunion','Indian/Mayotte',
+     (Ceuta and Melilla, Cyprus, Svalbard and the EU's outermost regions). */
+  var EU_EXTRA=['Africa/Ceuta','Asia/Nicosia','Asia/Famagusta','Arctic/Longyearbyen','Indian/Reunion','Indian/Mayotte',
     'America/Guadeloupe','America/Martinique','America/Cayenne','America/St_Barthelemy','America/Marigot'];
   function inEurope(){
     try{
@@ -37,17 +37,23 @@
     if(loaded||gpc)return;
     loaded=true;
     window['ga-disable-'+ID]=false;
-    /* Set up Google's script and page view only once per page, even after Decline then Accept. */
-    if(scriptAdded)return;
+    var cfg={allow_google_signals:false,allow_ad_personalization_signals:false};
+    /* Google's script and the page view are set up once per page. After Decline then Accept,
+       config runs again to restore the cookies Decline removed, without a second page view. */
+    if(scriptAdded){
+      if(stoppedSince){stoppedSince=false;cfg.send_page_view=false;gtag('config',ID,cfg);}
+      return;
+    }
     scriptAdded=true;
     gtag('js',new Date());
-    gtag('config',ID,{allow_google_signals:false,allow_ad_personalization_signals:false});
+    gtag('config',ID,cfg);
     var s=document.createElement('script');
     s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;
     document.head.appendChild(s);
   }
   function stop(){
     window['ga-disable-'+ID]=true;
+    if(scriptAdded)stoppedSince=true;
     loaded=false;
     /* Remove Google Analytics cookies already set on this site. */
     document.cookie.split(';').forEach(function(c){
@@ -55,7 +61,7 @@
       if(/^_ga/.test(name)){
         /* Try the host and every parent domain; the browser ignores ones it can't use (such as .co.uk). */
         var parts=location.hostname.split('.'), domains=[''];
-        for(var i=0;i<parts.length-1;i++){var d=parts.slice(i).join('.');domains.push(d,'.'+d);}
+        for(var i=0;i<parts.length-1;i++)domains.push(parts.slice(i).join('.'));
         domains.forEach(function(d){
           document.cookie=name+'=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'+(d?'; domain='+d:'');
         });
@@ -63,8 +69,8 @@
     });
   }
 
-  /* Send an event only when analytics is on. */
-  window.starfishTrack=function(name,params){if(loaded)gtag('event',name,params||{});};
+  /* Send an event only when analytics is on; returns true if it was sent. */
+  window.starfishTrack=function(name,params){if(!loaded)return false;gtag('event',name,params||{});return true;};
 
   function showBanner(){
     if(banner){banner.hidden=false;return;}
