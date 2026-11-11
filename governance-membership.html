@@ -255,7 +255,7 @@ footer .els span{font-weight:600}
         <ul>
           <li>Everything in Starfish Member</li>
           <li><b>10% back</b> on all kit purchases as credit toward next year</li>
-          <li>Monthly CEO-to-CEO working session with the founder</li>
+          <li>Quarterly CEO-to-CEO working session with the founder</li>
           <li>Priority scheduling for kit delivery</li>
           <li>Annual board-ready AI governance summary</li>
           <li>Membership fee refunded if you cancel</li>
@@ -415,7 +415,7 @@ function update(){
   const heavy=n>=5;
   const tier=heavy?'Starfish Command Member':'Starfish Member';
   const why=heavy
-    ? 'With '+n+' AI systems in play, the monthly working sessions and board-ready summary earn their keep.'
+    ? 'With '+n+' AI systems in play, the quarterly working sessions and board-ready summary earn their keep.'
     : 'With '+n+' AI system'+(n>1?'s':'')+', the standard membership covers what you need.';
   rec.innerHTML='<h3>Suggested: '+tier+'</h3><p>'+why+(note?' '+note:'')+'</p>'+
     '<div class="tot"><div><span>Member, year one</span><b>'+fmt(member)+'</b></div>'+
