@@ -25,6 +25,7 @@ if(a)gtag('event',a.getAttribute('data-track'),{link_label:a.getAttribute('data-
   --wood:#22C55E; --fire:#EF4444; --earth:#F59E0B; --metal:#FFD700; --water:#3B82F6;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html{scroll-behavior:smooth}
 body{background:var(--navy);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:var(--gold-soft)}
@@ -256,7 +257,7 @@ footer .els span{font-weight:600}
         <ul>
           <li>Everything in Starfish Member</li>
           <li><b><span data-fill="reward">10%</span> back</b> on all kit purchases as credit toward next year</li>
-          <li><span data-fill="cadence">Quarterly</span> CEO-to-CEO working session with the founder, in addition to the Quarterly Governance Diagnostic review</li>
+          <li><span data-fill="session">Quarterly CEO-to-CEO working session with the founder</span>, in addition to the Quarterly Governance Diagnostic review</li>
           <li>Priority scheduling for kit delivery</li>
           <li>Annual board-ready AI governance summary</li>
           <li>Membership fee refunded if you cancel</li>
@@ -302,8 +303,8 @@ footer .els span{font-weight:600}
       </div>
       <div class="item bundle" style="--c:var(--gold)">
         <span class="dot"></span>
-        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for under <span data-fill="year1-cap">$3,000</span> in year one.</p></div>
-        <div class="pp"><b data-fill="bundle">$2,250</b><span>save <span data-fill="bundle-save">$725</span></span></div>
+        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</p></div>
+        <div class="pp"><b data-fill="bundle">$2,250</b><span id="bundleSave">save <span data-fill="bundle-save">$725</span></span></div>
       </div>
     </div>
     <p class="fine">Kits are available to members only. Travel outside Silicon Valley, if needed, is billed at cost.</p>
@@ -394,30 +395,44 @@ footer .els span{font-weight:600}
 </footer>
 
 <script>
-/* Prices and the founder-session schedule live here, and only here.
-   Every [data-fill] element on the page is filled from these values; the
-   text typed in the HTML is just a fallback for visitors without JavaScript. */
+/* Prices and founder-session wording are set here. Every [data-fill] element
+   on the page is filled from these values. The HTML also carries the same
+   text for visitors without JavaScript and for search snippets: when you
+   change a value here, update that text too. The browser console lists any
+   spot that no longer matches. */
 const PRICE={member:495,command:1995,bundle:2250,reward:0.10,
+  /* The Five-Arm Bundle is exactly these five kits. */
   kits:{ethical:795,authority:795,iteration:395,register:495,log:495}};
-const SESSION_CADENCE='Quarterly';
+const SESSION={card:'Quarterly CEO-to-CEO working session with the founder',
+  calc:'quarterly founder sessions'};
 
 const USD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
-/* Totals in whole dollars. */
-const fmt=n=>USD.format(Math.round(n)).replace(/\.00$/,'');
+const USD0=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0});
+/* Whole dollars when the amount is whole, cents otherwise. */
+const fmt=n=>Number.isInteger(n)?USD0.format(n):USD.format(n);
 /* Credit always to the cent, rounded down so it never promises more than earned. */
 const fmtCredit=n=>USD.format(Math.floor(n*100+1e-6)/100);
+/* Percentage rounded down to one decimal, for the same reason (7.5% stays 7.5%). */
+const pct=r=>(Math.floor(r*1000+1e-6)/10)+'%';
 
 (function fill(){
-  const kitSum=Object.values(PRICE.kits).reduce((a,b)=>a+b,0);
-  const year1=PRICE.member+PRICE.bundle;
+  const kitKeys=Object.keys(PRICE.kits);
+  if(kitKeys.length!==5)console.error('The Five-Arm Bundle copy expects 5 kits in PRICE.kits; found '+kitKeys.length+'.');
+  const kitSum=kitKeys.reduce((a,k)=>a+PRICE.kits[k],0);
+  const save=kitSum-PRICE.bundle;
   const V={member:fmt(PRICE.member),command:fmt(PRICE.command),bundle:fmt(PRICE.bundle),
-    'bundle-save':fmt(kitSum-PRICE.bundle),'year1-cap':fmt((Math.floor(year1/1000)+1)*1000),
-    reward:Math.round(PRICE.reward*100)+'%',cadence:SESSION_CADENCE};
-  for(const k in PRICE.kits)V['kit-'+k]=fmt(PRICE.kits[k]);
+    'bundle-save':fmt(save),year1:fmt(PRICE.member+PRICE.bundle),
+    reward:pct(PRICE.reward),session:SESSION.card};
+  for(const k of kitKeys)V['kit-'+k]=fmt(PRICE.kits[k]);
   document.querySelectorAll('[data-fill]').forEach(el=>{
     const v=V[el.dataset.fill];
     if(v===undefined){console.error('No value for data-fill="'+el.dataset.fill+'"');return;}
+    if(el.textContent.trim()!==v)console.warn('Page text "'+el.textContent.trim()+'" for '+el.dataset.fill+' differs from the price list ("'+v+'"); update the HTML too.');
     el.textContent=v;
+  });
+  const sw=document.getElementById('bundleSave');if(sw)sw.hidden=save<=0;
+  document.querySelectorAll('#kits input').forEach(i=>{
+    if(!(i.dataset.kit in PRICE.kits)){console.error('Calculator kit "'+i.dataset.kit+'" has no price in PRICE.kits.');i.closest('label').hidden=true;}
   });
 })();
 try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}
@@ -427,11 +442,11 @@ const sys=document.getElementById('sys'),sysOut=document.getElementById('sysOut'
 
 function update(){
   const n=+sys.value; sysOut.textContent=n;
-  const picked=[...kits.querySelectorAll('input:checked')].map(i=>PRICE.kits[i.dataset.kit]);
+  const picked=[...kits.querySelectorAll('input:checked')].map(i=>PRICE.kits[i.dataset.kit]).filter(v=>typeof v==='number');
   let kitTotal=picked.reduce((a,b)=>a+b,0);
   let note='';
-  if(picked.length>=4 && kitTotal>PRICE.bundle){
-    note='At '+picked.length+' kits the Five-Arm Bundle is cheaper, so we priced that instead.';
+  if(kitTotal>PRICE.bundle){
+    note='For these '+picked.length+' kits the Five-Arm Bundle is cheaper, so we priced that instead.';
     kitTotal=PRICE.bundle;
   }
   const member=PRICE.member+kitTotal;
@@ -441,7 +456,7 @@ function update(){
   const heavy=n>=5;
   const tier=heavy?'Starfish Command Member':'Starfish Member';
   const why=heavy
-    ? 'With '+n+' AI systems in play, the '+SESSION_CADENCE.toLowerCase()+' founder sessions and board-ready summary earn their keep.'
+    ? 'With '+n+' AI systems in play, the '+SESSION.calc+' and board-ready summary earn their keep.'
     : 'With '+n+' AI system'+(n>1?'s':'')+', the standard membership covers what you need.';
   rec.innerHTML='<h3>Suggested: '+tier+'</h3><p>'+why+(note?' '+note:'')+'</p>'+
     '<div class="tot"><div><span>Member, year one</span><b>'+fmt(member)+'</b></div>'+
