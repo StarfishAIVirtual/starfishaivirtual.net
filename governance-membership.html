@@ -552,7 +552,8 @@ function update(){
     (credit>0?'<em>plus '+fmtCredit(credit)+' credit toward next year</em>':'')+'</div></div>';
 }
 /* calculator_used is sent when the visitor leaves or switches away from the page, with
-   their choices at that moment; it is sent again only if they change their choices after that. */
+   their choices at that moment; it is sent again only if they change their choices after that.
+   Unlike the Diagnostic's once-per-visit rule, this keeps nothing in storage. */
 let calcUsed=false,calcLast='';
 function used(){update();calcUsed=true;}
 function sendCalc(){
