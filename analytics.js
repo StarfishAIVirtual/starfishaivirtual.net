@@ -13,7 +13,7 @@
    data-track="event_name" (and optional data-label). */
 (function(){
   var ID='G-7PHFWL1CXN', KEY='starfish-analytics-consent';
-  var loaded=false, scriptAdded=false, stoppedSince=false, gaBlocked=false, banner=null;
+  var loaded=false, scriptAdded=false, stoppedSince=false, gaBlocked=false, gaLoaded=false, onLoaded=[], banner=null;
 
   window.dataLayer=window.dataLayer||[];
   function gtag(){window.dataLayer.push(arguments);}
@@ -47,17 +47,24 @@
        config runs again to restore the cookies Decline removed, without a second page view. */
     if(scriptAdded){
       if(stoppedSince){stoppedSince=false;cfg.send_page_view=false;gtag('config',ID,cfg);}
+      /* If Google's script failed earlier (blocker or network), Accept tries it again. */
+      if(gaBlocked)addScript();
       return;
     }
     scriptAdded=true;
     gtag('js',new Date());
     gtag('config',ID,cfg);
+    addScript();
+  }
+  /* Google's script processes everything already in dataLayer when it loads, so events never
+     need to wait here. If it fails (an ad blocker or a network problem), later events report
+     "not sent" and the banner says analytics couldn't load. */
+  function addScript(){
+    gaBlocked=false;
     var s=document.createElement('script');
     s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;
-    /* Google's script processes everything already in dataLayer when it loads, so events
-       never need to wait here. If an ad blocker makes it fail, later events report "not sent"
-       and the banner says analytics is blocked. */
-    s.onerror=function(){gaBlocked=true;showState();};
+    s.onload=function(){gaLoaded=true;var cbs=onLoaded;onLoaded=[];cbs.forEach(function(cb){cb();});};
+    s.onerror=function(){gaBlocked=true;onLoaded=[];showState();};
     document.head.appendChild(s);
   }
   function stop(){
@@ -87,14 +94,36 @@
     });
   }
 
+  /* Whether analytics is on right now (consent given and Google's script not blocked). */
+  window.starfishAnalyticsOn=function(){return loaded&&!gaBlocked;};
+
   /* Send an event when analytics is on, the standard way: into Google's queue, which its script
      sends once loaded. Returns true if the event was queued, false if analytics is off or Google's
      script is known to be blocked. */
-  /* Whether analytics is on right now (consent given and Google's script not blocked). */
-  window.starfishAnalyticsOn=function(){return loaded&&!gaBlocked;};
   window.starfishTrack=function(name,params){
-    if(!loaded||gaBlocked)return false;
+    if(!window.starfishAnalyticsOn())return false;
     gtag('event',name,params||{});
+    return true;
+  };
+
+  /* Send an event at most once per visit, shared by any page that needs it (the Diagnostic uses
+     it). A visit ends after 30 minutes without the action, like a Google Analytics session: a
+     repeat inside the visit isn't sent again but restarts the 30 minutes. The note is stored as
+     "starfish-analytics-<key>-sent" (Decline removes it), is only written or extended while
+     analytics is on, and is only recorded once Google's script has actually loaded, so an
+     event lost to a blocker is never recorded as counted. */
+  var VISIT_MS=30*60*1000, LEGACY={diagnostic:'starfish-diagnostic-sent'};
+  window.starfishTrackOncePerVisit=function(key,name,params){
+    var k='starfish-analytics-'+key+'-sent';
+    function last(){try{return Number(localStorage.getItem(k)||(LEGACY[key]&&localStorage.getItem(LEGACY[key]))||0);}catch(e){return 0;}}
+    function mark(){
+      if(!window.starfishAnalyticsOn())return;
+      try{localStorage.setItem(k,String(Date.now()));if(LEGACY[key])localStorage.removeItem(LEGACY[key]);}catch(e){}
+    }
+    var t=last();
+    if(t&&Date.now()-t<VISIT_MS){mark();return false;}
+    if(!window.starfishTrack(name,params))return false;
+    if(gaLoaded)mark();else onLoaded.push(mark);
     return true;
   };
 
@@ -121,7 +150,7 @@
   function showState(){
     var el=banner&&banner.querySelector('.sf-state');
     if(!el)return;
-    el.textContent=loaded&&gaBlocked?'Analytics is currently blocked by your browser, so nothing is collected.':
+    el.textContent=loaded&&gaBlocked?'Analytics couldn\'t load (blocked by your browser or a network problem), so nothing is collected.':
       loaded?'Analytics is currently on.':(stored()==='denied'?'Analytics is currently off.':'Analytics is off until you choose.');
   }
 

@@ -78,7 +78,8 @@ for (const page of PAGES) {
     let file;
     try { file = decodeURIComponent(rawPath); }
     catch (e) { problems.push(page + ': malformed link "' + ref + '"'); return; }
-    /* A non-empty path that resolves to the site folder ('/', './') is the home page. */
+    /* Leading '/' (from the site root) and './' are stripped: /fonts/x.woff2 is fonts/x.woff2.
+       A non-empty path that resolves to the site folder ('/', './') is the home page. */
     const hadPath = file.length > 0;
     file = file.replace(/^(\.\/|\/)+/, '');
     if (!file && hadPath) file = 'index.html';
