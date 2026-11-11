@@ -13,7 +13,10 @@
    data-track="event_name" (and optional data-label). */
 (function(){
   var ID='G-7PHFWL1CXN', KEY='starfish-analytics-consent';
-  var loaded=false, scriptAdded=false, stoppedSince=false, gaBlocked=false, gaLoaded=false, onLoaded=[], banner=null;
+  var loaded=false, scriptAdded=false, stoppedSince=false, gaBlocked=false, gaScript=null, banner=null;
+  /* Once-per-visit notes (see starfishTrackOncePerVisit): visit length, and note names used
+     before the starfish-analytics- prefix, which are still read and removed. */
+  var VISIT_MS=30*60*1000, LEGACY={diagnostic:'starfish-diagnostic-sent'};
 
   window.dataLayer=window.dataLayer||[];
   function gtag(){window.dataLayer.push(arguments);}
@@ -39,7 +42,9 @@
   var gpc=navigator.globalPrivacyControl===true;
 
   function load(){
-    if(loaded||gpc)return;
+    if(gpc)return;
+    /* Already on but Google's script failed (blocker or network): Accept tries it again. */
+    if(loaded){if(gaBlocked)addScript();return;}
     loaded=true;
     window['ga-disable-'+ID]=false;
     var cfg={allow_google_signals:false,allow_ad_personalization_signals:false};
@@ -63,8 +68,10 @@
     gaBlocked=false;
     var s=document.createElement('script');
     s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;
-    s.onload=function(){gaLoaded=true;var cbs=onLoaded;onLoaded=[];cbs.forEach(function(cb){cb();});};
-    s.onerror=function(){gaBlocked=true;onLoaded=[];showState();};
+    s.onerror=function(){gaBlocked=true;showState();};
+    /* Replace a script element that failed before, rather than piling them up. */
+    if(gaScript&&gaScript.parentNode)gaScript.parentNode.removeChild(gaScript);
+    gaScript=s;
     document.head.appendChild(s);
   }
   function stop(){
@@ -78,7 +85,7 @@
         var k=localStorage.key(i);
         if(k&&k!==KEY&&k.indexOf('starfish-analytics-')===0)localStorage.removeItem(k);
       }
-      localStorage.removeItem('starfish-diagnostic-sent');
+      for(var l in LEGACY)localStorage.removeItem(LEGACY[l]);
     }catch(e){}
     /* Remove Google Analytics cookies already set on this site. */
     document.cookie.split(';').forEach(function(c){
@@ -110,9 +117,9 @@
      it). A visit ends after 30 minutes without the action, like a Google Analytics session: a
      repeat inside the visit isn't sent again but restarts the 30 minutes. The note is stored as
      "starfish-analytics-<key>-sent" (Decline removes it), is only written or extended while
-     analytics is on, and is only recorded once Google's script has actually loaded, so an
-     event lost to a blocker is never recorded as counted. */
-  var VISIT_MS=30*60*1000, LEGACY={diagnostic:'starfish-diagnostic-sent'};
+     analytics is on, and is written as soon as the event is queued, so repeats before Google's
+     script loads aren't counted twice. A website can't confirm Google received an event (some
+     blockers allow the script but block the data), so the note means "queued", not "received". */
   window.starfishTrackOncePerVisit=function(key,name,params){
     var k='starfish-analytics-'+key+'-sent';
     function last(){try{return Number(localStorage.getItem(k)||(LEGACY[key]&&localStorage.getItem(LEGACY[key]))||0);}catch(e){return 0;}}
@@ -123,7 +130,7 @@
     var t=last();
     if(t&&Date.now()-t<VISIT_MS){mark();return false;}
     if(!window.starfishTrack(name,params))return false;
-    if(gaLoaded)mark();else onLoaded.push(mark);
+    mark();
     return true;
   };
 
