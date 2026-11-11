@@ -14,7 +14,7 @@
 (function(){
   var ID='G-7PHFWL1CXN', KEY='starfish-analytics-consent';
   /* gaState: 'loading' until Google's script loads ('ready') or fails ('blocked'). */
-  var loaded=false, scriptAdded=false, stoppedSince=false, gaState='loading', waiting=[], banner=null;
+  var loaded=false, scriptAdded=false, stoppedSince=false, gaState='loading', waiting=[], handed=[], banner=null;
 
   window.dataLayer=window.dataLayer||[];
   function gtag(){window.dataLayer.push(arguments);}
@@ -56,34 +56,48 @@
     var s=document.createElement('script');
     s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;
     /* Events wait until we know whether Google's script loaded; an ad blocker makes it fail. */
-    s.onload=function(){if(gaState==='loading'){gaState='ready';settle();}};
+    /* A script that arrives late (after the 10-second limit below) still counts as loaded. */
+    s.onload=function(){if(gaState!=='ready'){gaState='ready';settle();}};
     s.onerror=function(){if(gaState==='loading'){gaState='blocked';settle();}};
-    /* A request that hangs (some filters stall it) counts as blocked after 10 seconds. */
+    /* A request that hangs (some filters stall it) counts as blocked after 10 seconds,
+       unless it loads later. */
     setTimeout(function(){if(gaState==='loading'){gaState='blocked';settle();}},10000);
     document.head.appendChild(s);
   }
-  /* If the visitor leaves while Google's script is still loading, hand the waiting events to
-     Google's queue anyway: they are sent if the script finishes before the page closes. */
-  window.addEventListener('pagehide',function(){
+  /* If the page is hidden or closed while Google's script is still loading, hand the waiting
+     events to Google's queue now: phones often discard a hidden tab without a pagehide.
+     Their promises still resolve only when the script settles (true if it loaded). */
+  function handOver(){
     if(gaState!=='loading'||!loaded)return;
     var list=waiting;waiting=[];
-    list.forEach(function(w){gtag('event',w.name,w.params);w.resolve(true);});
-  });
+    list.forEach(function(w){gtag('event',w.name,w.params);handed.push(w);});
+  }
+  window.addEventListener('pagehide',handOver);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')handOver();});
   /* Send or drop the events that were waiting for Google's script. */
   function settle(){
+    var ok=gaState==='ready'&&loaded;
     var list=waiting;waiting=[];
     list.forEach(function(w){
-      var ok=gaState==='ready'&&loaded;
       if(ok)gtag('event',w.name,w.params);
       w.resolve(ok);
     });
+    var gone=handed;handed=[];
+    gone.forEach(function(w){w.resolve(gaState==='ready');});
   }
   function stop(){
     window['ga-disable-'+ID]=true;
     if(scriptAdded)stoppedSince=true;
     loaded=false;
-    /* Remove other analytics-only data this site stores (the Diagnostic's "already counted" note). */
-    try{localStorage.removeItem('starfish-diagnostic-sent');}catch(e){}
+    /* Remove other analytics-only data this site stores: any localStorage key starting with
+       "starfish-analytics-" (except the consent choice itself), plus the older Diagnostic key. */
+    try{
+      for(var i=localStorage.length-1;i>=0;i--){
+        var k=localStorage.key(i);
+        if(k&&k!==KEY&&k.indexOf('starfish-analytics-')===0)localStorage.removeItem(k);
+      }
+      localStorage.removeItem('starfish-diagnostic-sent');
+    }catch(e){}
     /* Remove Google Analytics cookies already set on this site. */
     document.cookie.split(';').forEach(function(c){
       var name=c.split('=')[0].trim();
