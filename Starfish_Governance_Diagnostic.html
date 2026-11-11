@@ -76,11 +76,13 @@ const Q=[
 {tag:"Iteration Cap",kitId:"iteration",kit:"Iteration Cap Policy",t:"When AI output isn't right, how many attempts happen before a person steps in?",o:["We keep regenerating until something looks acceptable","It depends on the person","There's a rough habit of escalating after a while","There's an agreed limit, after which a person takes over"],tip:"Agree on a small number of AI retries; after that, a person takes the decision back."},
 {tag:"Decision Record",kitId:"log",kit:"Decision Log Setup",t:"Is there a record of important AI-assisted decisions, including when someone overrode the AI?",o:["No record is kept","Scattered in emails and chats","Recorded for some areas","Yes, a consistent log with reasons for any override"],tip:"Keep one decision log: what was decided, who decided, and why any AI advice was overridden."}
 ];
-/* diagnostic_complete counts once per visit, across reloads and tabs. A visit is 30 minutes,
-   the same as a Google Analytics session. */
+/* diagnostic_complete counts once per visit, across reloads and tabs. Like a Google Analytics
+   session, a visit ends after 30 minutes without a completion: each completion, counted or
+   not, restarts the 30 minutes. Checked when the visitor finishes, not when the page loads. */
 const DIAG_KEY='starfish-diagnostic-sent',VISIT_MS=30*60*1000;
-let diagSent=false,diagPending=false;
-try{diagSent=Date.now()-Number(localStorage.getItem(DIAG_KEY)||0)<VISIT_MS;}catch(e){}
+let diagPending=false;
+function diagLast(){try{return Number(localStorage.getItem(DIAG_KEY)||0);}catch(e){return 0;}}
+function diagMark(){try{localStorage.setItem(DIAG_KEY,String(Date.now()));}catch(e){}}
 const f=document.getElementById('f'),go=document.getElementById('go'),r=document.getElementById('result');
 Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
 d.innerHTML='<div class="tag">'+(i+1)+' of 5 &middot; '+q.tag+'</div><h2>'+q.t+'</h2>'+q.o.map((o,j)=>'<label><input type="radio" name="q'+i+'" value="'+j+'"> <span>'+o+'</span></label>').join('');
@@ -96,9 +98,12 @@ const pct=Math.round(s/15*100);
 let notes=low.length?'<div class="notes"><h3>Where to look first</h3><ul>'+low.map(q=>'<li><b>'+q.tag+':</b> '+q.tip+' <span class="kit">Matching kit: <a data-track="membership_page_click" data-label="diagnostic_kit_'+q.kitId+'" href="governance-membership.html#kit-'+q.kitId+'">'+q.kit+'</a></span></li>').join('')+'</ul></div>':'<div class="notes"><h3>Keep it strong</h3><ul><li>Revisit these five questions every quarter as new AI tools arrive.</li></ul></div>';
 r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">'+(low.length?'Each matching kit above is part of ':'To keep it strong as AI use grows, see ')+'<a data-track="membership_page_click" data-label="diagnostic_result" href="governance-membership.html#catalog">Starfish Governance Membership</a>. Would you like a conversation about these results? Contact Le X. My at <a data-track="contact_click" data-label="email" href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or <a data-track="contact_click" data-label="phone" href="tel:+14084399146">(408) 439-9146</a>.</p>';
 r.style.display='block';
-if(!diagSent&&!diagPending&&window.starfishTrack){diagPending=true;
-  window.starfishTrack('diagnostic_complete',{score:s,stage:title}).then(ok=>{diagPending=false;
-    if(ok){diagSent=true;try{localStorage.setItem(DIAG_KEY,String(Date.now()));}catch(e){}}});}
+if(!diagPending&&window.starfishTrack){
+  const last=diagLast();
+  if(last&&Date.now()-last<VISIT_MS)diagMark(); /* same visit: not counted again, visit extended */
+  else{diagPending=true;
+    window.starfishTrack('diagnostic_complete',{score:s,stage:title}).then(ok=>{diagPending=false;if(ok)diagMark();});}
+}
 r.scrollIntoView({behavior:'smooth'});
 });
 </script>

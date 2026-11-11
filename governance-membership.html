@@ -553,18 +553,19 @@ function update(){
 }
 /* calculator_used is sent when the visitor leaves or switches away from the page, with
    their choices at that moment; it is sent again only if they change their choices after that. */
-let calcUsed=false,calcLast='',calcPending='';
+let calcUsed=false,calcLast='';
 function used(){update();calcUsed=true;}
 function sendCalc(){
   if(!calcUsed||!window.starfishTrack)return;
   const picked=[...kits.querySelectorAll('input:checked')].map(i=>i.dataset.kit).filter(k=>kitPrice(k)!==undefined);
   const p={ai_systems:+sys.value,kits_selected:picked.length};
   const key=p.ai_systems+'/'+picked.join(',');
-  if(key===calcLast||key===calcPending)return;
-  /* Remember the choices only once the event was really sent (analytics may be off until Accept). */
-  calcPending=key;
-  window.starfishTrack('calculator_used',Object.assign({transport_type:'beacon'},p)).then(ok=>{
-    if(calcPending===key)calcPending='';if(ok)calcLast=key;});
+  if(key===calcLast)return;
+  /* Remember the choices once sent. latestOnly replaces an earlier event still waiting for
+     Google's script, so abandoned choices are never sent. */
+  calcLast=key;
+  window.starfishTrack('calculator_used',Object.assign({transport_type:'beacon'},p),{latestOnly:true})
+    .then(ok=>{if(!ok&&calcLast===key)calcLast='';});
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')sendCalc();});
 window.addEventListener('pagehide',sendCalc);

@@ -28,8 +28,9 @@ function load(page) {
   vc.on('error', m => problems.push(page + ': console error: ' + m));
   vc.on('jsdomError', e => {
     const msg = String((e.detail && e.detail.message) || e.message || e);
-    /* jsdom lacks some browser features (scrolling, layout); that's not a site problem. */
-    if (/Not implemented/i.test(msg)) notes.push(page + ': ' + msg);
+    /* jsdom lacks scrolling; that's not a site problem. Any other "Not implemented"
+       (form submission, navigation...) means the page did something unexpected: fail. */
+    if (/Not implemented: window\.(scroll|scrollTo|scrollBy)\b/.test(msg)) notes.push(page + ': ' + msg);
     else problems.push(page + ': script error: ' + msg);
   });
   const dom = new JSDOM(html, { runScripts: 'dangerously', virtualConsole: vc,
@@ -39,16 +40,21 @@ function load(page) {
   return dom;
 }
 
-/* Answer every radio group with its first option and press the submit button, so
-   script-built results (e.g. the Diagnostic's kit links) are in the DOM to check. */
+/* Answer every radio group with its lowest-scoring option (smallest value) and press the
+   submit button, so script-built results (e.g. every Diagnostic kit link) are in the DOM. */
 function exercise(doc) {
-  const groups = new Set([...doc.querySelectorAll('input[type=radio]')].map(i => i.name));
+  const radios = [...doc.querySelectorAll('input[type=radio]')];
+  const groups = new Set(radios.map(i => i.name));
   if (!groups.size) return;
-  groups.forEach(n => { const i = doc.querySelector('input[type=radio][name="' + n + '"]'); i.checked = true; });
-  const form = doc.querySelector('form');
-  if (form) form.dispatchEvent(new doc.defaultView.Event('change', { bubbles: true }));
-  const btn = doc.querySelector('button#go, button[type=submit]');
-  if (btn && !btn.disabled) btn.click();
+  groups.forEach(n => {
+    const opts = radios.filter(i => i.name === n).sort((a, b) => Number(a.value) - Number(b.value));
+    opts[0].checked = true;
+    opts[0].dispatchEvent(new doc.defaultView.Event('change', { bubbles: true }));
+  });
+  const btn = [...doc.querySelectorAll('button')].find(b => !/^(button|reset)$/i.test(b.getAttribute('type') || ''));
+  if (!btn) return;
+  if (btn.disabled) { problems.push(doc.defaultView.location.pathname.slice(1) + ': submit button still disabled after answering every question'); return; }
+  btn.click();
 }
 
 const doms = {};
@@ -62,10 +68,13 @@ for (const page of PAGES) {
   doc.querySelectorAll('link[href],script[src],a[href],img[src]').forEach(el => {
     const ref = el.getAttribute('href') || el.getAttribute('src');
     if (!ref || /^(https?:|mailto:|tel:|data:|javascript:)/.test(ref) || ref === '#') return;
-    const [file, anchor] = ref.split('?')[0].split('#');
+    const hash = ref.indexOf('#');
+    const anchor = hash >= 0 ? ref.slice(hash + 1) : '';
+    const file = decodeURIComponent((hash >= 0 ? ref.slice(0, hash) : ref).split('?')[0]).replace(/^(\.\/|\/)+/, '');
     const target = file || page;
     if (file && !exists(file)) { problems.push(page + ': missing file "' + file + '"'); return; }
-    if (anchor && doms[target] && !doms[target].window.document.getElementById(anchor)) {
+    if (anchor && !doms[target]) { problems.push(page + ': anchor link to non-page "' + ref + '"'); return; }
+    if (anchor && !doms[target].window.document.getElementById(anchor)) {
       problems.push(page + ': link to ' + target + '#' + anchor + ' has no matching element');
     }
   });
@@ -75,6 +84,24 @@ for (const page of PAGES) {
 const css = fs.readFileSync(path.join(ROOT, 'fonts/fonts.css'), 'utf8');
 for (const m of css.matchAll(/url\(([^)]+)\)/g)) {
   if (!exists('fonts/' + m[1].replace(/['"]/g, ''))) problems.push('fonts/fonts.css: missing font "' + m[1] + '"');
+}
+
+/* Every Diagnostic kitId must have a catalog card, and every kit link must have rendered. */
+const diagSrc = fs.readFileSync(path.join(ROOT, 'Starfish_Governance_Diagnostic.html'), 'utf8');
+const kitIds = [...diagSrc.matchAll(/kitId:"([\w-]+)"/g)].map(m => m[1]);
+const memberDoc = doms['governance-membership.html'].window.document;
+const diagDoc = doms['Starfish_Governance_Diagnostic.html'].window.document;
+for (const id of kitIds) {
+  if (!memberDoc.getElementById('kit-' + id)) problems.push('Diagnostic kitId "' + id + '" has no card id="kit-' + id + '" on governance-membership.html');
+  if (!diagDoc.querySelector('a[href="governance-membership.html#kit-' + id + '"]')) problems.push('Diagnostic result did not show a link for kit "' + id + '" (the check answers every question with its weakest option)');
+}
+
+/* Font preloads must point at files fonts/fonts.css uses, so the two can't drift apart. */
+for (const page of PAGES) {
+  doms[page].window.document.querySelectorAll('link[rel=preload][as=font]').forEach(l => {
+    const name = l.getAttribute('href').replace(/^fonts\//, '');
+    if (!css.includes('url(' + name + ')')) problems.push(page + ': preloads "' + l.getAttribute('href') + '", which fonts/fonts.css does not use');
+  });
 }
 
 Object.values(doms).forEach(d => d.window.close());

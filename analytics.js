@@ -56,10 +56,19 @@
     var s=document.createElement('script');
     s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;
     /* Events wait until we know whether Google's script loaded; an ad blocker makes it fail. */
-    s.onload=function(){gaState='ready';settle();};
-    s.onerror=function(){gaState='blocked';settle();};
+    s.onload=function(){if(gaState==='loading'){gaState='ready';settle();}};
+    s.onerror=function(){if(gaState==='loading'){gaState='blocked';settle();}};
+    /* A request that hangs (some filters stall it) counts as blocked after 10 seconds. */
+    setTimeout(function(){if(gaState==='loading'){gaState='blocked';settle();}},10000);
     document.head.appendChild(s);
   }
+  /* If the visitor leaves while Google's script is still loading, hand the waiting events to
+     Google's queue anyway: they are sent if the script finishes before the page closes. */
+  window.addEventListener('pagehide',function(){
+    if(gaState!=='loading'||!loaded)return;
+    var list=waiting;waiting=[];
+    list.forEach(function(w){gtag('event',w.name,w.params);w.resolve(true);});
+  });
   /* Send or drop the events that were waiting for Google's script. */
   function settle(){
     var list=waiting;waiting=[];
@@ -73,6 +82,8 @@
     window['ga-disable-'+ID]=true;
     if(scriptAdded)stoppedSince=true;
     loaded=false;
+    /* Remove other analytics-only data this site stores (the Diagnostic's "already counted" note). */
+    try{localStorage.removeItem('starfish-diagnostic-sent');}catch(e){}
     /* Remove Google Analytics cookies already set on this site. */
     document.cookie.split(';').forEach(function(c){
       var name=c.split('=')[0].trim();
@@ -88,11 +99,16 @@
   }
 
   /* Send an event only when analytics is on. Returns a promise of true once the event has
-     been handed to Google's loaded script, or false if analytics is off or the script is blocked. */
-  window.starfishTrack=function(name,params){
+     been handed to Google's loaded script, or false if analytics is off or the script is blocked.
+     With opts.latestOnly, a newer event of the same name replaces one still waiting, so
+     only the visitor's latest choices are sent (the replaced one resolves false). */
+  window.starfishTrack=function(name,params,opts){
     params=params||{};
     if(!loaded||gaState==='blocked')return Promise.resolve(false);
     if(gaState==='ready'){gtag('event',name,params);return Promise.resolve(true);}
+    if(opts&&opts.latestOnly){
+      waiting=waiting.filter(function(w){if(w.name!==name)return true;w.resolve(false);return false;});
+    }
     return new Promise(function(resolve){waiting.push({name:name,params:params,resolve:resolve});});
   };
 
