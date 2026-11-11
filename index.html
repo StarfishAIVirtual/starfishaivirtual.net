@@ -3,15 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Google Analytics (GA4) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PHFWL1CXN"></script>
-<script>
-window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','G-7PHFWL1CXN');
-/* Any link with data-track="event_name" sends that event when clicked; data-label says which one. */
-document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-track]');
-if(a)gtag('event',a.getAttribute('data-track'),{link_label:a.getAttribute('data-label')||a.textContent.trim(),page:location.pathname});});
-</script>
+<!-- Google Analytics with cookie choice: see analytics.js -->
+<script src="analytics.js"></script>
 <title>Starfish AI Virtual</title>
 <meta name="description" content="Starfish AI Virtual — AI governance consultancy in Silicon Valley. Ethical Gate, Human-In-Command and Iteration Cap: frameworks that keep humans in command of AI decisions.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -273,7 +266,7 @@ footer .els span{font-weight:600}
 <footer>
   <div class="wrap">
     <div class="els"><span style="color:var(--metal)">METAL</span> &middot; <span style="color:var(--water)">WATER</span> &middot; <span style="color:var(--wood)">WOOD</span> &middot; <span style="color:var(--earth)">EARTH</span> &middot; <span style="color:var(--fire)">FIRE</span></div>
-    &copy; <span id="y">2026</span> Starfish Enterprises International &middot; San Jose, California &middot; <a href="privacy.html">Privacy</a>
+    &copy; <span id="y">2026</span> Starfish Enterprises International &middot; San Jose, California &middot; <a href="privacy.html">Privacy</a> &middot; <a href="#" data-cookie-settings>Cookie settings</a>
   </div>
 </footer>
 <script>try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}</script>

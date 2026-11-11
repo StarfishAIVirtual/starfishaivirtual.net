@@ -3,15 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Google Analytics (GA4) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PHFWL1CXN"></script>
-<script>
-window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','G-7PHFWL1CXN');
-/* Any link with data-track="event_name" sends that event when clicked; data-label says which one. */
-document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-track]');
-if(a)gtag('event',a.getAttribute('data-track'),{link_label:a.getAttribute('data-label')||a.textContent.trim(),page:location.pathname});});
-</script>
+<!-- Google Analytics with cookie choice: see analytics.js -->
+<script src="analytics.js"></script>
 <title>Starfish Governance Membership</title>
 <meta name="description" content="Starfish Governance Membership: AI governance on a membership model. One annual fee, a short catalog of governance kits at published near-cost prices, and a refund if it isn't worth it.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -203,13 +196,13 @@ footer .els span{font-weight:600}
       <div class="pr" style="--c:var(--water)">
         <div class="n">Rule 2 &middot; Curated Catalog</div>
         <h3>A short shelf of things that work</h3>
-        <p><span data-fill="kit-count">Five</span> kits and one bundle, not six hundred services. Each one is built on a Starfish framework and has been refined across many organizations.</p>
+        <p><span data-fill="kit-count">Five</span> kits<span data-requires="bundle"> and one bundle</span>, not six hundred services. Each one is built on a Starfish framework and has been refined across many organizations.</p>
         <div class="vs"><s>Bespoke everything</s> &rarr; proven, repeatable kits</div>
       </div>
-      <div class="pr" style="--c:var(--wood)">
+      <div class="pr" style="--c:var(--wood)" data-requires="bundle">
         <div class="n">Rule 3 &middot; Buy in Bulk</div>
         <h3>Govern every AI system at once</h3>
-        <p>The bundle covers all five kits in one engagement, for every AI tool you run, so nothing is left ungoverned and the per-system cost falls.</p>
+        <p>The bundle covers all <span data-fill="bundle-count">five</span> kits in one engagement, for every AI tool you run, so nothing is left ungoverned and the per-system cost falls.</p>
         <div class="vs"><s>One system at a time</s> &rarr; the whole portfolio, one price</div>
       </div>
       <div class="pr" style="--c:var(--earth)">
@@ -303,7 +296,7 @@ footer .els span{font-weight:600}
       </div>
       <div class="item bundle" style="--c:var(--gold)">
         <span class="dot"></span>
-        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. <span data-requires="year1">With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</span></p></div>
+        <div><h3>Five-Arm Governance Bundle</h3><p>All <span data-fill="bundle-count">five</span> kits in one engagement, covering every AI system you run. <span data-requires="year1">With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</span></p></div>
         <div class="pp"><b data-fill="bundle">$2,250</b><span data-requires="bundle-save">save <span data-fill="bundle-save">$725</span></span></div>
       </div>
     </div>
@@ -316,7 +309,7 @@ footer .els span{font-weight:600}
     <div class="sec-head">
       <div class="eyebrow">Find Your Fit</div>
       <h2>What would a year cost you?</h2>
-      <p>Tell us roughly where you are. The kits you pick stay on this page; we only count how many AI systems people select (<a href="privacy.html">privacy</a>).</p>
+      <p>Tell us roughly where you are. The kits you pick stay on this page; we only count how many AI systems and kits people select (<a href="privacy.html">privacy</a>).</p>
     </div>
     <div class="calc">
       <label for="sys">AI systems in use across the organization: <output id="sysOut">3</output></label>
@@ -390,7 +383,7 @@ footer .els span{font-weight:600}
 <footer>
   <div class="wrap">
     <div class="els"><span style="color:var(--metal)">METAL</span> &middot; <span style="color:var(--water)">WATER</span> &middot; <span style="color:var(--wood)">WOOD</span> &middot; <span style="color:var(--earth)">EARTH</span> &middot; <span style="color:var(--fire)">FIRE</span></div>
-    &copy; <span id="y">2026</span> Starfish Enterprises International &middot; San Jose, California &middot; <a href="index.html">Home</a> &middot; <a href="privacy.html">Privacy</a>
+    &copy; <span id="y">2026</span> Starfish Enterprises International &middot; San Jose, California &middot; <a href="index.html">Home</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="#" data-cookie-settings>Cookie settings</a>
   </div>
 </footer>
 
@@ -439,7 +432,8 @@ for(const k in SCALARS){
   SCALAR_OK[k]=SCALARS[k].ok(PRICE[k]);
   if(!SCALAR_OK[k])console.error('PRICE.'+k+' is not valid ('+JSON.stringify(PRICE[k])+'); '+SCALARS[k].hint);
 }
-const PRICES_OK=Object.keys(SCALARS).every(k=>SCALAR_OK[k]);
+/* The calculator needs the two membership prices; the bundle and reward are optional extras. */
+const PRICES_OK=SCALAR_OK.member&&SCALAR_OK.command;
 
 const KITS_SHAPE_OK=!!PRICE.kits&&typeof PRICE.kits==='object'&&!Array.isArray(PRICE.kits);
 if(!KITS_SHAPE_OK)console.error('PRICE.kits must be written as {name:price, ...}, not '+(Array.isArray(PRICE.kits)?'a list':JSON.stringify(PRICE.kits))+'.');
@@ -476,6 +470,7 @@ const SAVE=BUNDLE_OK&&BUNDLE_KITS.every(k=>kitPrice(k)!==undefined)
   const VALID={member:SCALAR_OK.member,command:SCALAR_OK.command,reward:SCALAR_OK.reward,
     bundle:BUNDLE_OK,year1:BUNDLE_OK&&SCALAR_OK.member,'bundle-save':SAVE>0};
   const V={session:SESSION_CARD,'kit-count':countWord(VALID_KITS.length),
+    'bundle-count':countWord(BUNDLE_KITS.length).toLowerCase(),
     'bundle-save':VALID['bundle-save']?fmt(SAVE):null,
     year1:VALID.year1?fmt(PRICE.member+PRICE.bundle):null};
   for(const k in SCALARS)V[k]=VALID[k]?SCALARS[k].show(PRICE[k]):SCALARS[k].fallback;
@@ -539,7 +534,7 @@ function update(){
   const member=PRICE.member+kitTotal;
   /* The reward is credit toward next year, so it is not taken off the year-one price. */
   const command=PRICE.command+kitTotal;
-  const credit=kitTotal*PRICE.reward;
+  const credit=SCALAR_OK.reward?kitTotal*PRICE.reward:0;
   const heavy=n>=5;
   const tier=heavy?'Starfish Command Member':'Starfish Member';
   const why=heavy
@@ -550,8 +545,13 @@ function update(){
     '<div><span>Command, year one</span><b>'+fmt(command)+'</b>'+
     (credit>0?'<em>plus '+fmtCredit(credit)+' credit toward next year</em>':'')+'</div></div>';
 }
-let calcSent=false;
-function used(){update();if(!calcSent&&typeof gtag==='function'){calcSent=true;gtag('event','calculator_used',{ai_systems:+sys.value});}}
+/* calculator_used is sent once, when the visitor leaves the page, with their final choices. */
+let calcUsed=false,calcSent=false;
+function used(){update();calcUsed=true;}
+function sendCalc(){if(calcUsed&&!calcSent){calcSent=true;
+  starfishTrack('calculator_used',{ai_systems:+sys.value,kits_selected:kits.querySelectorAll('input:checked').length,transport_type:'beacon'});}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')sendCalc();});
+window.addEventListener('pagehide',sendCalc);
 sys.addEventListener('input',used);
 kits.addEventListener('change',used);
 update();

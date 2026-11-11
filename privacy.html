@@ -3,15 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Google Analytics (GA4) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PHFWL1CXN"></script>
-<script>
-window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','G-7PHFWL1CXN');
-/* Any link with data-track="event_name" sends that event when clicked; data-label says which one. */
-document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-track]');
-if(a)gtag('event',a.getAttribute('data-track'),{link_label:a.getAttribute('data-label')||a.textContent.trim(),page:location.pathname});});
-</script>
+<!-- Google Analytics with cookie choice: see analytics.js -->
+<script src="analytics.js"></script>
 <title>Starfish Privacy Policy</title>
 <meta name="description" content="How Starfish AI Virtual collects and uses information on this website, including Google Analytics, and how to opt out.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,27 +59,28 @@ footer{border-top:1px solid rgba(212,175,55,.25);padding:26px 0;text-align:cente
       <li>We use Google Analytics to count visits and see which pages and buttons are used.</li>
       <li>Your individual Diagnostic answers never leave your browser. Only your overall score and stage are counted.</li>
       <li>We don't sell or share your personal information, and we don't use it for advertising.</li>
-      <li>You can opt out of analytics at any time (see below).</li>
+      <li>You can turn analytics off at any time with "Cookie settings" at the bottom of every page.</li>
     </ul>
   </div>
 
   <p>This policy explains how Starfish Enterprises International, doing business as Starfish AI Virtual ("Starfish", "we", "us"), of San Jose, California, handles information when you visit starfishaivirtual.net (the "site").</p>
 
   <h2>What we collect</h2>
-  <p><b>Website analytics.</b> We use Google Analytics 4, a service from Google LLC. When you visit, it sets cookies and collects information such as:</p>
+  <p><b>Website analytics.</b> We use Google Analytics 4, a service from Google LLC. When analytics is on (see "Your choices"), it sets cookies and collects information such as:</p>
   <ul>
     <li>the pages you view and how long you stay</li>
     <li>your approximate location (country and city)</li>
     <li>your device, browser and the site that referred you</li>
     <li>these actions on the site:
       <ul>
-        <li>completing the Governance Diagnostic, recorded with your overall score and stage only</li>
-        <li>clicking contact or membership links</li>
-        <li>using the cost calculator, recorded with the number of AI systems you selected only</li>
+        <li>starting the Governance Diagnostic from one of its buttons</li>
+        <li>completing the Diagnostic, recorded once per visit with your overall score and stage only</li>
+        <li>clicking our phone, email or LinkedIn links, or the "join" and membership links</li>
+        <li>using the cost calculator, recorded once when you leave the page, with only the number of AI systems and the number of kits you selected</li>
       </ul>
     </li>
   </ul>
-  <p>Google Analytics 4 does not log or store full IP addresses. We don't send your name, email address or individual Diagnostic answers to Google Analytics.</p>
+  <p>Each tracked click is recorded with which link was clicked and the page it was on. Google Analytics 4 does not log or store full IP addresses. We don't send your name, email address or individual Diagnostic answers to Google Analytics. Google Signals and ad personalization are switched off in our analytics code, so this data is not used for advertising.</p>
 
   <p><b>Diagnostic and calculator.</b> Your answers to each Diagnostic question, and the kits you pick in the cost calculator, are worked out in your browser. They are not sent to us or stored.</p>
 
@@ -110,8 +104,10 @@ footer{border-top:1px solid rgba(212,175,55,.25);padding:26px 0;text-align:cente
 
   <h2>Your choices</h2>
   <ul>
-    <li><b>Opt out of analytics:</b> install Google's <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics Opt-out Browser Add-on</a>, or block cookies for this site in your browser settings. The site works fully without them.</li>
-    <li><b>Global Privacy Control:</b> we don't sell or share personal information, so there is no sale or sharing for the signal to switch off.</li>
+    <li><b>Visitors in Europe</b> (based on your device's time zone) are asked first. Analytics only starts if you click Accept.</li>
+    <li><b>Visitors elsewhere</b> have analytics on by default. Click <b>Cookie settings</b> at the bottom of any page and choose Decline to turn it off; we also remove our analytics cookies from your browser. Your choice is remembered on that browser.</li>
+    <li><b>Global Privacy Control:</b> if your browser sends this signal, analytics never starts.</li>
+    <li>You can also install Google's <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics Opt-out Browser Add-on</a> or block cookies in your browser. The site works fully without them.</li>
   </ul>
 
   <h2>Your rights</h2>
@@ -138,7 +134,7 @@ footer{border-top:1px solid rgba(212,175,55,.25);padding:26px 0;text-align:cente
 </main>
 
 <footer>
-  <div class="wrap">&copy; 2026 Starfish Enterprises International &middot; San Jose, California &middot; <a href="index.html">Home</a></div>
+  <div class="wrap">&copy; 2026 Starfish Enterprises International &middot; San Jose, California &middot; <a href="index.html">Home</a> &middot; <a href="#" data-cookie-settings>Cookie settings</a></div>
 </footer>
 </body>
 </html>
