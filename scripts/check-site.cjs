@@ -19,7 +19,8 @@ const PAGES = fs.readdirSync(ROOT).filter(f => f.endsWith('.html'));
 const problems = [];
 const notes = [];
 
-function exists(rel) { return fs.existsSync(path.join(ROOT, decodeURIComponent(rel))); }
+/* rel is already decoded; never decode twice. */
+function exists(rel) { return fs.existsSync(path.join(ROOT, rel)); }
 
 function load(page) {
   const html = fs.readFileSync(path.join(ROOT, page), 'utf8');
@@ -51,7 +52,10 @@ function exercise(doc) {
     opts[0].checked = true;
     opts[0].dispatchEvent(new doc.defaultView.Event('change', { bubbles: true }));
   });
-  const btn = [...doc.querySelectorAll('button')].find(b => !/^(button|reset)$/i.test(b.getAttribute('type') || ''));
+  const submits = [...doc.querySelectorAll('button')].filter(b => !/^(button|reset)$/i.test(b.getAttribute('type') || ''));
+  const form = radios[0].form || radios[0].closest('form');
+  const FOLLOWING = doc.defaultView.Node.DOCUMENT_POSITION_FOLLOWING;
+  const btn = form ? (submits.find(b => form.contains(b)) || submits.find(b => form.compareDocumentPosition(b) & FOLLOWING)) : submits[0];
   if (!btn) return;
   if (btn.disabled) { problems.push(doc.defaultView.location.pathname.slice(1) + ': submit button still disabled after answering every question'); return; }
   btn.click();
@@ -70,7 +74,14 @@ for (const page of PAGES) {
     if (!ref || /^(https?:|mailto:|tel:|data:|javascript:)/.test(ref) || ref === '#') return;
     const hash = ref.indexOf('#');
     const anchor = hash >= 0 ? ref.slice(hash + 1) : '';
-    const file = decodeURIComponent((hash >= 0 ? ref.slice(0, hash) : ref).split('?')[0]).replace(/^(\.\/|\/)+/, '');
+    const rawPath = (hash >= 0 ? ref.slice(0, hash) : ref).split('?')[0];
+    let file;
+    try { file = decodeURIComponent(rawPath); }
+    catch (e) { problems.push(page + ': malformed link "' + ref + '"'); return; }
+    /* A path starting with / is from the site root; "/" alone is the home page. */
+    const fromRoot = file.startsWith('/');
+    file = file.replace(/^(\.\/|\/)+/, '');
+    if (!file && fromRoot) file = 'index.html';
     const target = file || page;
     if (file && !exists(file)) { problems.push(page + ': missing file "' + file + '"'); return; }
     if (anchor && !doms[target]) { problems.push(page + ': anchor link to non-page "' + ref + '"'); return; }
@@ -82,16 +93,18 @@ for (const page of PAGES) {
 
 /* Font files named in fonts/fonts.css. */
 const css = fs.readFileSync(path.join(ROOT, 'fonts/fonts.css'), 'utf8');
-for (const m of css.matchAll(/url\(([^)]+)\)/g)) {
-  if (!exists('fonts/' + m[1].replace(/['"]/g, ''))) problems.push('fonts/fonts.css: missing font "' + m[1] + '"');
+const cssFonts = new Set([...css.matchAll(/url\(([^)]+)\)/g)].map(m => m[1].trim().replace(/^['"]|['"]$/g, '')));
+for (const f of cssFonts) {
+  if (!exists('fonts/' + f)) problems.push('fonts/fonts.css: missing font "' + f + '"');
 }
 
 /* Every Diagnostic kitId must have a catalog card, and every kit link must have rendered. */
-const diagSrc = fs.readFileSync(path.join(ROOT, 'Starfish_Governance_Diagnostic.html'), 'utf8');
-const kitIds = [...diagSrc.matchAll(/kitId:"([\w-]+)"/g)].map(m => m[1]);
-const memberDoc = doms['governance-membership.html'].window.document;
-const diagDoc = doms['Starfish_Governance_Diagnostic.html'].window.document;
-for (const id of kitIds) {
+const DIAG_PAGE = 'Starfish_Governance_Diagnostic.html', MEMBER_PAGE = 'governance-membership.html';
+for (const p of [DIAG_PAGE, MEMBER_PAGE]) if (!doms[p]) problems.push('expected page "' + p + '" is missing (renamed?); update scripts/check-site.cjs');
+const kitIds = doms[DIAG_PAGE] ? [...fs.readFileSync(path.join(ROOT, DIAG_PAGE), 'utf8').matchAll(/kitId:"([\w-]+)"/g)].map(m => m[1]) : [];
+const memberDoc = doms[MEMBER_PAGE] && doms[MEMBER_PAGE].window.document;
+const diagDoc = doms[DIAG_PAGE] && doms[DIAG_PAGE].window.document;
+if (memberDoc && diagDoc) for (const id of kitIds) {
   if (!memberDoc.getElementById('kit-' + id)) problems.push('Diagnostic kitId "' + id + '" has no card id="kit-' + id + '" on governance-membership.html');
   if (!diagDoc.querySelector('a[href="governance-membership.html#kit-' + id + '"]')) problems.push('Diagnostic result did not show a link for kit "' + id + '" (the check answers every question with its weakest option)');
 }
@@ -99,8 +112,9 @@ for (const id of kitIds) {
 /* Font preloads must point at files fonts/fonts.css uses, so the two can't drift apart. */
 for (const page of PAGES) {
   doms[page].window.document.querySelectorAll('link[rel=preload][as=font]').forEach(l => {
-    const name = l.getAttribute('href').replace(/^fonts\//, '');
-    if (!css.includes('url(' + name + ')')) problems.push(page + ': preloads "' + l.getAttribute('href') + '", which fonts/fonts.css does not use');
+    const href = l.getAttribute('href');
+    if (!href) { problems.push(page + ': font preload without href'); return; }
+    if (!cssFonts.has(href.replace(/^(\.\/)?fonts\//, ''))) problems.push(page + ': preloads "' + href + '", which fonts/fonts.css does not use');
   });
 }
 
