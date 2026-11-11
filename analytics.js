@@ -13,7 +13,7 @@
    data-track="event_name" (and optional data-label). */
 (function(){
   var ID='G-7PHFWL1CXN', KEY='starfish-analytics-consent';
-  var loaded=false, banner=null;
+  var loaded=false, scriptAdded=false, banner=null;
 
   window.dataLayer=window.dataLayer||[];
   function gtag(){window.dataLayer.push(arguments);}
@@ -21,9 +21,15 @@
 
   function stored(){try{return localStorage.getItem(KEY);}catch(e){return null;}}
   function store(v){try{localStorage.setItem(KEY,v);}catch(e){}}
+  /* EU/EEA/UK time zones, including those outside the Europe/ prefix
+     (Cyprus, Svalbard and the EU's outermost regions). */
+  var EU_EXTRA=['Asia/Nicosia','Asia/Famagusta','Arctic/Longyearbyen','Indian/Reunion','Indian/Mayotte',
+    'America/Guadeloupe','America/Martinique','America/Cayenne','America/St_Barthelemy','America/Marigot'];
   function inEurope(){
-    try{return /^(Europe|Atlantic\/(Canary|Madeira|Azores|Faroe|Reykjavik))/.test(Intl.DateTimeFormat().resolvedOptions().timeZone||'');}
-    catch(e){return false;}
+    try{
+      var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+      return /^(Europe|Atlantic\/(Canary|Madeira|Azores|Faroe|Reykjavik))/.test(tz)||EU_EXTRA.indexOf(tz)!==-1;
+    }catch(e){return false;}
   }
   var gpc=navigator.globalPrivacyControl===true;
 
@@ -31,6 +37,9 @@
     if(loaded||gpc)return;
     loaded=true;
     window['ga-disable-'+ID]=false;
+    /* Set up Google's script and page view only once per page, even after Decline then Accept. */
+    if(scriptAdded)return;
+    scriptAdded=true;
     gtag('js',new Date());
     gtag('config',ID,{allow_google_signals:false,allow_ad_personalization_signals:false});
     var s=document.createElement('script');
@@ -44,9 +53,9 @@
     document.cookie.split(';').forEach(function(c){
       var name=c.split('=')[0].trim();
       if(/^_ga/.test(name)){
-        var host=location.hostname, parts=host.split('.');
-        var domains=['',host,'.'+host];
-        if(parts.length>1)domains.push('.'+parts.slice(-2).join('.'));
+        /* Try the host and every parent domain; the browser ignores ones it can't use (such as .co.uk). */
+        var parts=location.hostname.split('.'), domains=[''];
+        for(var i=0;i<parts.length-1;i++){var d=parts.slice(i).join('.');domains.push(d,'.'+d);}
         domains.forEach(function(d){
           document.cookie=name+'=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'+(d?'; domain='+d:'');
         });
@@ -77,13 +86,17 @@
   }
 
   var choice=stored();
-  if(!gpc){
+  /* Global Privacy Control: never track, and clear any analytics cookies set earlier. */
+  if(gpc)stop();
+  else{
     if(choice==='granted')load();
     else if(choice!=='denied'&&!inEurope())load();
   }
 
   document.addEventListener('DOMContentLoaded',function(){
     if(!gpc&&choice===null&&inEurope())showBanner();
+    /* The footer link is hidden in the HTML, so it only appears when this file has loaded. */
+    document.querySelectorAll('[data-cookie-settings-wrap]').forEach(function(w){w.hidden=false;});
     document.querySelectorAll('[data-cookie-settings]').forEach(function(a){
       if(gpc){a.textContent='Analytics off (Global Privacy Control)';a.removeAttribute('href');return;}
       a.addEventListener('click',function(e){e.preventDefault();showBanner();});
