@@ -203,7 +203,7 @@ footer .els span{font-weight:600}
       <div class="pr" style="--c:var(--water)">
         <div class="n">Rule 2 &middot; Curated Catalog</div>
         <h3>A short shelf of things that work</h3>
-        <p>Five kits and one bundle, not six hundred services. Each one is built on a Starfish framework and has been refined across many organizations.</p>
+        <p><span data-fill="kit-count">Five</span> kits and one bundle, not six hundred services. Each one is built on a Starfish framework and has been refined across many organizations.</p>
         <div class="vs"><s>Bespoke everything</s> &rarr; proven, repeatable kits</div>
       </div>
       <div class="pr" style="--c:var(--wood)">
@@ -398,8 +398,8 @@ footer .els span{font-weight:600}
 /* Prices and the founder-session schedule are set here. Every [data-fill]
    element on the page is filled from these values. The HTML also carries the
    same text for visitors without JavaScript and for search snippets: when you
-   change a value here, update that text too. The browser console lists any
-   spot that no longer matches, and any price that isn't a number. */
+   change a value here, update that text too. The browser console lists every
+   spot that no longer matches, and any value that isn't valid. */
 const PRICE={member:495,command:1995,bundle:2250,reward:0.10,
   kits:{ethical:795,authority:795,iteration:395,register:495,log:495},
   /* The Five-Arm Bundle covers exactly these kits. */
@@ -410,36 +410,56 @@ const SESSION_CARD=SESSION_CADENCE+' CEO-to-CEO working session with the founder
 const SESSION_CALC=SESSION_CADENCE.toLowerCase()+' founder sessions';
 
 /* A kit's price, or undefined if the kit isn't listed or its price isn't a number. */
-const kitPrice=k=>Object.prototype.hasOwnProperty.call(PRICE.kits,k)&&Number.isFinite(PRICE.kits[k])?PRICE.kits[k]:undefined;
+const kitPrice=k=>Object.hasOwn(PRICE.kits,k)&&Number.isFinite(PRICE.kits[k])?PRICE.kits[k]:undefined;
+
+/* Membership prices, bundle and reward must be numbers; otherwise the calculator stands down. */
+const BAD_SCALARS=['member','command','bundle','reward'].filter(k=>!Number.isFinite(PRICE[k]));
+BAD_SCALARS.forEach(k=>console.error('PRICE.'+k+' must be a number; found '+JSON.stringify(PRICE[k])+'.'));
+const PRICES_OK=BAD_SCALARS.length===0;
+
+/* The bundle is usable only if its price is valid and it lists distinct kits that all have valid prices. */
+const BUNDLE_OK=(function(){
+  let ok=Number.isFinite(PRICE.bundle);
+  const seen=new Set();
+  PRICE.bundleKits.forEach(k=>{
+    if(seen.has(k)){console.error('PRICE.bundleKits lists "'+k+'" more than once.');ok=false;}
+    seen.add(k);
+    if(!Object.hasOwn(PRICE.kits,k)){console.error('PRICE.bundleKits names "'+k+'", which is not in PRICE.kits.');ok=false;}
+    else if(kitPrice(k)===undefined)ok=false;
+  });
+  if(PRICE.bundleKits.length!==5){console.error('The Five-Arm Bundle copy expects 5 bundle kits; found '+PRICE.bundleKits.length+'.');}
+  return ok;
+})();
 
 const USD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
 const USD0=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0});
-/* The one money formatter: rounded to the cent, then whole dollars if whole, cents otherwise. */
+/* Prices and totals: rounded to the cent, then whole dollars if whole, cents otherwise. */
 const fmt=n=>{n=Math.round(n*100)/100;return Number.isInteger(n)?USD0.format(n):USD.format(n);};
-/* Credit is rounded down first so it never promises more than earned. */
-const fmtCredit=n=>fmt(Math.floor(n*100+1e-6)/100);
+/* Credit: always to the cent, rounded down so it never promises more than earned. */
+const fmtCredit=n=>USD.format(Math.floor(n*100+1e-6)/100);
 /* Percentage rounded down to one decimal, for the same reason (7.5% stays 7.5%). */
 const pct=r=>(Math.floor(r*1000+1e-6)/10)+'%';
+const WORDS=['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'];
+const countWord=n=>WORDS[n]||String(n);
 
 (function fill(){
   const kitKeys=Object.keys(PRICE.kits);
   kitKeys.forEach(k=>{if(kitPrice(k)===undefined)console.error('PRICE.kits.'+k+' is not a number.');});
-  if(PRICE.bundleKits.length!==5)console.error('The Five-Arm Bundle copy expects 5 bundle kits; found '+PRICE.bundleKits.length+'.');
-  const bundlePrices=PRICE.bundleKits.map(kitPrice);
-  const save=bundlePrices.every(v=>v!==undefined)?bundlePrices.reduce((a,b)=>a+b,0)-PRICE.bundle:NaN;
-  const V={member:fmt(PRICE.member),command:fmt(PRICE.command),bundle:fmt(PRICE.bundle),
-    year1:fmt(PRICE.member+PRICE.bundle),reward:pct(PRICE.reward),session:SESSION_CARD};
-  if(save>0)V['bundle-save']=fmt(save);
-  kitKeys.forEach(k=>{if(kitPrice(k)!==undefined)V['kit-'+k]=fmt(kitPrice(k));});
-  const warned=new Set();
+  const save=BUNDLE_OK?PRICE.bundleKits.reduce((a,k)=>a+kitPrice(k),0)-PRICE.bundle:NaN;
+  const V={session:SESSION_CARD,'kit-count':countWord(kitKeys.length),'bundle-save':save>0?fmt(save):''};
+  if(Number.isFinite(PRICE.member))V.member=fmt(PRICE.member);
+  if(Number.isFinite(PRICE.command))V.command=fmt(PRICE.command);
+  if(Number.isFinite(PRICE.bundle))V.bundle=fmt(PRICE.bundle);
+  if(Number.isFinite(PRICE.reward))V.reward=pct(PRICE.reward);
+  if(Number.isFinite(PRICE.member)&&Number.isFinite(PRICE.bundle))V.year1=fmt(PRICE.member+PRICE.bundle);
+  /* A kit without a valid price is offered on request rather than at a stale price. */
+  kitKeys.forEach(k=>{V['kit-'+k]=kitPrice(k)!==undefined?fmt(kitPrice(k)):'On request';});
+  const reported=new Set();
+  const once=(type,msg)=>{if(!reported.has(msg)){reported.add(msg);console[type](msg);}};
   document.querySelectorAll('[data-fill]').forEach(el=>{
-    const key=el.dataset.fill,v=V[key];
-    if(v===undefined){
-      if(key!=='bundle-save'&&!warned.has(key)){warned.add(key);console.error('No value for data-fill="'+key+'"');}
-      return;
-    }
-    if(el.textContent.trim()!==v&&!warned.has(key)){warned.add(key);
-      console.warn('Page text "'+el.textContent.trim()+'" for '+key+' differs from the price list ("'+v+'"); update the HTML too.');}
+    const key=el.dataset.fill,v=V[key],old=el.textContent.trim();
+    if(v===undefined){once('error','No valid value for data-fill="'+key+'"; the page keeps its text "'+old+'".');return;}
+    if(key!=='bundle-save'&&old!==v)once('warn','Page text "'+old+'" for '+key+' differs from the price list ("'+v+'"); update the HTML too.');
     el.textContent=v;
   });
   const sw=document.getElementById('bundleSave');if(sw)sw.hidden=!(save>0);
@@ -456,13 +476,17 @@ const sys=document.getElementById('sys'),sysOut=document.getElementById('sysOut'
 
 function update(){
   const n=+sys.value; sysOut.textContent=n;
+  if(!PRICES_OK){
+    rec.innerHTML='<h3>Pricing is being updated</h3><p>Please <a href="#join">contact us</a> for a quote.</p>';
+    return;
+  }
   const picked=[...kits.querySelectorAll('input:checked')].map(i=>i.dataset.kit).filter(k=>kitPrice(k)!==undefined);
-  /* Only bundle kits can be replaced by the bundle; any other kit is added on top. */
-  const inBundle=picked.filter(k=>PRICE.bundleKits.includes(k));
+  /* Only bundle kits can be replaced by the bundle, and only when the bundle is valid; any other kit is added on top. */
+  const inBundle=BUNDLE_OK?picked.filter(k=>PRICE.bundleKits.includes(k)):[];
   let bundled=inBundle.reduce((a,k)=>a+kitPrice(k),0);
-  const extra=picked.filter(k=>!PRICE.bundleKits.includes(k)).reduce((a,k)=>a+kitPrice(k),0);
+  const extra=picked.filter(k=>!inBundle.includes(k)).reduce((a,k)=>a+kitPrice(k),0);
   let note='';
-  if(bundled>PRICE.bundle){
+  if(BUNDLE_OK&&bundled>PRICE.bundle){
     note='For these '+inBundle.length+' kits the Five-Arm Bundle is cheaper, so we priced that instead.';
     bundled=PRICE.bundle;
   }
