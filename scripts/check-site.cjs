@@ -79,9 +79,10 @@ for (const page of PAGES) {
     try { file = decodeURIComponent(rawPath); }
     catch (e) { problems.push(page + ': malformed link "' + ref + '"'); return; }
     /* A path starting with / is from the site root; "/" alone is the home page. */
-    const fromRoot = file.startsWith('/');
+    /* A non-empty path that resolves to the site folder ('/', './') is the home page. */
+    const hadPath = file.length > 0;
     file = file.replace(/^(\.\/|\/)+/, '');
-    if (!file && fromRoot) file = 'index.html';
+    if (!file && hadPath) file = 'index.html';
     const target = file || page;
     if (file && !exists(file)) { problems.push(page + ': missing file "' + file + '"'); return; }
     if (anchor && !doms[target]) { problems.push(page + ': anchor link to non-page "' + ref + '"'); return; }
@@ -93,7 +94,8 @@ for (const page of PAGES) {
 
 /* Font files named in fonts/fonts.css. */
 const css = fs.readFileSync(path.join(ROOT, 'fonts/fonts.css'), 'utf8');
-const cssFonts = new Set([...css.matchAll(/url\(([^)]+)\)/g)].map(m => m[1].trim().replace(/^['"]|['"]$/g, '')));
+const decodeOr = s => { try { return decodeURIComponent(s); } catch (e) { return s; } };
+const cssFonts = new Set([...css.matchAll(/url\(([^)]+)\)/g)].map(m => decodeOr(m[1].trim().replace(/^['"]|['"]$/g, ''))));
 for (const f of cssFonts) {
   if (!exists('fonts/' + f)) problems.push('fonts/fonts.css: missing font "' + f + '"');
 }
@@ -114,7 +116,7 @@ for (const page of PAGES) {
   doms[page].window.document.querySelectorAll('link[rel=preload][as=font]').forEach(l => {
     const href = l.getAttribute('href');
     if (!href) { problems.push(page + ': font preload without href'); return; }
-    if (!cssFonts.has(href.replace(/^(\.\/)?fonts\//, ''))) problems.push(page + ': preloads "' + href + '", which fonts/fonts.css does not use');
+    if (!cssFonts.has(decodeOr(href).replace(/^(\.\/|\/)*fonts\//, ''))) problems.push(page + ': preloads "' + href + '", which fonts/fonts.css does not use');
   });
 }
 

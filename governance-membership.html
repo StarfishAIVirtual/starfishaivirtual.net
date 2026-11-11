@@ -561,11 +561,8 @@ function sendCalc(){
   const p={ai_systems:+sys.value,kits_selected:picked.length};
   const key=p.ai_systems+'/'+picked.join(',');
   if(key===calcLast)return;
-  /* Remember the choices once sent. latestOnly replaces an earlier event still waiting for
-     Google's script, so abandoned choices are never sent. */
-  calcLast=key;
-  window.starfishTrack('calculator_used',Object.assign({transport_type:'beacon'},p),{latestOnly:true})
-    .then(ok=>{if(!ok&&calcLast===key)calcLast='';});
+  /* Remember the choices once sent; if analytics is off (e.g. before Accept), try again later. */
+  if(window.starfishTrack('calculator_used',Object.assign({transport_type:'beacon'},p)))calcLast=key;
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')sendCalc();});
 window.addEventListener('pagehide',sendCalc);

@@ -13,8 +13,7 @@
    data-track="event_name" (and optional data-label). */
 (function(){
   var ID='G-7PHFWL1CXN', KEY='starfish-analytics-consent';
-  /* gaState: 'loading' until Google's script loads ('ready') or fails ('blocked'). */
-  var loaded=false, scriptAdded=false, stoppedSince=false, gaState='loading', waiting=[], handed=[], banner=null;
+  var loaded=false, scriptAdded=false, stoppedSince=false, gaBlocked=false, banner=null;
 
   window.dataLayer=window.dataLayer||[];
   function gtag(){window.dataLayer.push(arguments);}
@@ -55,35 +54,11 @@
     gtag('config',ID,cfg);
     var s=document.createElement('script');
     s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;
-    /* Events wait until we know whether Google's script loaded; an ad blocker makes it fail. */
-    /* A script that arrives late (after the 10-second limit below) still counts as loaded. */
-    s.onload=function(){if(gaState!=='ready'){gaState='ready';settle();}};
-    s.onerror=function(){if(gaState==='loading'){gaState='blocked';settle();}};
-    /* A request that hangs (some filters stall it) counts as blocked after 10 seconds,
-       unless it loads later. */
-    setTimeout(function(){if(gaState==='loading'){gaState='blocked';settle();}},10000);
+    /* Google's script processes everything already in dataLayer when it loads, so events
+       never need to wait here. If an ad blocker makes it fail, later events report "not sent"
+       and the banner says analytics is blocked. */
+    s.onerror=function(){gaBlocked=true;};
     document.head.appendChild(s);
-  }
-  /* If the page is hidden or closed while Google's script is still loading, hand the waiting
-     events to Google's queue now: phones often discard a hidden tab without a pagehide.
-     Their promises still resolve only when the script settles (true if it loaded). */
-  function handOver(){
-    if(gaState!=='loading'||!loaded)return;
-    var list=waiting;waiting=[];
-    list.forEach(function(w){gtag('event',w.name,w.params);handed.push(w);});
-  }
-  window.addEventListener('pagehide',handOver);
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')handOver();});
-  /* Send or drop the events that were waiting for Google's script. */
-  function settle(){
-    var ok=gaState==='ready'&&loaded;
-    var list=waiting;waiting=[];
-    list.forEach(function(w){
-      if(ok)gtag('event',w.name,w.params);
-      w.resolve(ok);
-    });
-    var gone=handed;handed=[];
-    gone.forEach(function(w){w.resolve(gaState==='ready');});
   }
   function stop(){
     window['ga-disable-'+ID]=true;
@@ -112,18 +87,13 @@
     });
   }
 
-  /* Send an event only when analytics is on. Returns a promise of true once the event has
-     been handed to Google's loaded script, or false if analytics is off or the script is blocked.
-     With opts.latestOnly, a newer event of the same name replaces one still waiting, so
-     only the visitor's latest choices are sent (the replaced one resolves false). */
-  window.starfishTrack=function(name,params,opts){
-    params=params||{};
-    if(!loaded||gaState==='blocked')return Promise.resolve(false);
-    if(gaState==='ready'){gtag('event',name,params);return Promise.resolve(true);}
-    if(opts&&opts.latestOnly){
-      waiting=waiting.filter(function(w){if(w.name!==name)return true;w.resolve(false);return false;});
-    }
-    return new Promise(function(resolve){waiting.push({name:name,params:params,resolve:resolve});});
+  /* Send an event when analytics is on, the standard way: into Google's queue, which its script
+     sends once loaded. Returns true if the event was queued, false if analytics is off or Google's
+     script is known to be blocked. */
+  window.starfishTrack=function(name,params){
+    if(!loaded||gaBlocked)return false;
+    gtag('event',name,params||{});
+    return true;
   };
 
   function showBanner(){
@@ -149,7 +119,7 @@
   function showState(){
     var el=banner&&banner.querySelector('.sf-state');
     if(!el)return;
-    el.textContent=loaded&&gaState==='blocked'?'Analytics is currently blocked by your browser, so nothing is collected.':
+    el.textContent=loaded&&gaBlocked?'Analytics is currently blocked by your browser, so nothing is collected.':
       loaded?'Analytics is currently on.':(stored()==='denied'?'Analytics is currently off.':'Analytics is off until you choose.');
   }
 
