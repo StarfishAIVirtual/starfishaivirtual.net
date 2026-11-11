@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PHFWL1CXN"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-7PHFWL1CXN');
+/* Any link with data-track="event_name" sends that event when clicked; data-label says which one. */
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-track]');
+if(a)gtag('event',a.getAttribute('data-track'),{link_label:a.getAttribute('data-label')||a.textContent.trim(),page:location.pathname});});
+</script>
 <title>Starfish Governance Diagnostic</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -82,8 +91,9 @@ else if(s<=10){title="In Transition toward AI Version 2.0";msg="Good instincts a
 else{title="Approaching AI Version 2.0";msg="Humans are clearly in command of your AI. The remaining work is refinement: keeping records current and checkpoints sharp as AI use grows."}
 const pct=Math.round(s/15*100);
 let notes=low.length?'<div class="notes"><h3>Where to look first</h3><ul>'+low.map(q=>'<li><b>'+q.tag+':</b> '+q.tip+'</li>').join('')+'</ul></div>':'<div class="notes"><h3>Keep it strong</h3><ul><li>Revisit these five questions every quarter as new AI tools arrive.</li></ul></div>';
-r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">Each area above matches a kit in <a href="governance-membership.html#catalog">Starfish Governance Membership</a>. Would you like a conversation about these results? Contact Le X. My at <a href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or (408) 439-9146.</p>';
-r.style.display='block';r.scrollIntoView({behavior:'smooth'});
+r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">Each area above matches a kit in <a data-track="membership_page_click" data-label="diagnostic_result" href="governance-membership.html#catalog">Starfish Governance Membership</a>. Would you like a conversation about these results? Contact Le X. My at <a data-track="contact_click" data-label="email" href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or (408) 439-9146.</p>';
+r.style.display='block';
+if(typeof gtag==='function')gtag('event','diagnostic_complete',{score:s,stage:title});r.scrollIntoView({behavior:'smooth'});
 });
 </script>
 </body>

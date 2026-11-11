@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PHFWL1CXN"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-7PHFWL1CXN');
+/* Any link with data-track="event_name" sends that event when clicked; data-label says which one. */
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-track]');
+if(a)gtag('event',a.getAttribute('data-track'),{link_label:a.getAttribute('data-label')||a.textContent.trim(),page:location.pathname});});
+</script>
 <title>Starfish AI Virtual</title>
 <meta name="description" content="Starfish AI Virtual — AI governance consultancy in Silicon Valley. Ethical Gate, Human-In-Command and Iteration Cap: frameworks that keep humans in command of AI decisions.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -147,7 +156,7 @@ footer .els span{font-weight:600}
     <h1>Put humans back <em>in command</em> of AI.</h1>
     <p class="lead">Starfish AI Virtual helps leaders decide who holds authority over AI-assisted decisions, and who answers for them, before the decisions reach your customers.</p>
     <div class="btns">
-      <a class="btn primary" href="Starfish_Governance_Diagnostic.html">Take the 2-minute Governance Diagnostic</a>
+      <a class="btn primary" data-track="diagnostic_start_click" data-label="home_hero" href="Starfish_Governance_Diagnostic.html">Take the 2-minute Governance Diagnostic</a>
       <a class="btn ghost" href="#contact">Talk with us</a>
     </div>
     <p class="tag">Smarter Solutions. A Brighter Future.</p>
@@ -179,7 +188,7 @@ footer .els span{font-weight:600}
       </div>
     </div>
     <p class="diff">We focus on <b>decision authority and human accountability</b>, not checkbox compliance tooling.</p>
-    <p class="diff" style="border-top:0;padding-top:0">Delivered on a <b>membership model</b>: one annual fee, governance kits at published member prices, and a refund if it isn't worth it.<br><a class="btn ghost" style="margin-top:16px" href="governance-membership.html">See Starfish Governance Membership</a></p>
+    <p class="diff" style="border-top:0;padding-top:0">Delivered on a <b>membership model</b>: one annual fee, governance kits at published member prices, and a refund if it isn't worth it.<br><a class="btn ghost" style="margin-top:16px" data-track="membership_page_click" data-label="home_frameworks" href="governance-membership.html">See Starfish Governance Membership</a></p>
   </div>
 </section>
 
@@ -252,9 +261,9 @@ footer .els span{font-weight:600}
     <div class="who">Le X. My</div>
     <div class="role">Founder &middot; AI Governance Consultant</div>
     <ul>
-      <li><a href="tel:+14088878724">(408) 887-8724</a></li>
-      <li><a href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a></li>
-      <li class="li"><a href="https://www.linkedin.com/in/le-my-8201b938" target="_blank" rel="noopener">www.linkedin.com/in/le-my-8201b938</a></li>
+      <li><a data-track="contact_click" data-label="phone" href="tel:+14088878724">(408) 887-8724</a></li>
+      <li><a data-track="contact_click" data-label="email" href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a></li>
+      <li class="li"><a data-track="contact_click" data-label="linkedin" href="https://www.linkedin.com/in/le-my-8201b938" target="_blank" rel="noopener">www.linkedin.com/in/le-my-8201b938</a></li>
     </ul>
   </div>
 </section>

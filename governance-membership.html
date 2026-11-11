@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7PHFWL1CXN"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-7PHFWL1CXN');
+/* Any link with data-track="event_name" sends that event when clicked; data-label says which one. */
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-track]');
+if(a)gtag('event',a.getAttribute('data-track'),{link_label:a.getAttribute('data-label')||a.textContent.trim(),page:location.pathname});});
+</script>
 <title>Starfish Governance Membership</title>
 <meta name="description" content="Starfish Governance Membership: AI governance on a membership model. One annual fee, a short catalog of governance kits at published near-cost prices, and a refund if it isn't worth it.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -170,7 +179,7 @@ footer .els span{font-weight:600}
     <p class="lead">Big-firm AI governance is billed by the hour and priced for the Fortune 500. We run it like a warehouse club instead: one annual membership, a short catalog of proven governance kits sold close to cost, and your money back if it isn't worth it.</p>
     <div class="btns">
       <a class="btn primary" href="#tiers">See memberships</a>
-      <a class="btn ghost" href="Starfish_Governance_Diagnostic.html">Take the free Diagnostic first</a>
+      <a class="btn ghost" data-track="diagnostic_start_click" data-label="membership_hero" href="Starfish_Governance_Diagnostic.html">Take the free Diagnostic first</a>
     </div>
   </div>
 </section>
@@ -236,7 +245,7 @@ footer .els span{font-weight:600}
           <li>Email support with a two-business-day reply</li>
           <li>Membership fee refunded if you cancel</li>
         </ul>
-        <a class="btn ghost" href="#join">Become a Member</a>
+        <a class="btn ghost" href="#join" data-track="membership_join_click" data-label="become_member">Become a Member</a>
       </div>
       <div class="tier best">
         <span class="badge">Best value for AI-heavy teams</span>
@@ -251,7 +260,7 @@ footer .els span{font-weight:600}
           <li>Annual board-ready AI governance summary</li>
           <li>Membership fee refunded if you cancel</li>
         </ul>
-        <a class="btn primary" href="#join">Become a Command Member</a>
+        <a class="btn primary" href="#join" data-track="membership_join_click" data-label="become_command_member">Become a Command Member</a>
       </div>
     </div>
   </div>
@@ -368,8 +377,8 @@ footer .els span{font-weight:600}
     <h2>Start with a conversation</h2>
     <p>Memberships begin with a 30-minute call with founder Le X. My. If membership isn't the right fit, we'll say so.</p>
     <div class="btns">
-      <a class="btn primary" href="mailto:StarfishAIVirtual@gmail.com?subject=Starfish%20Governance%20Membership">Email to join</a>
-      <a class="btn ghost" href="tel:+14088878724">(408) 887-8724</a>
+      <a data-track="membership_join_click" data-label="email_to_join" class="btn primary" href="mailto:StarfishAIVirtual@gmail.com?subject=Starfish%20Governance%20Membership">Email to join</a>
+      <a data-track="membership_join_click" data-label="phone" class="btn ghost" href="tel:+14088878724">(408) 887-8724</a>
     </div>
   </div>
 </section>
@@ -412,8 +421,10 @@ function update(){
     '<div class="tot"><div><span>Member, year one</span><b>'+fmt(member)+'</b></div>'+
     '<div><span>Command, after 10% back</span><b>'+fmt(command)+'</b></div></div>';
 }
-sys.addEventListener('input',update);
-kits.addEventListener('change',update);
+let calcSent=false;
+function used(){update();if(!calcSent&&typeof gtag==='function'){calcSent=true;gtag('event','calculator_used',{ai_systems:+sys.value});}}
+sys.addEventListener('input',used);
+kits.addEventListener('change',used);
 update();
 </script>
 </body>
