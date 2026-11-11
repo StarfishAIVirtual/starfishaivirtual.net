@@ -13,7 +13,8 @@
    data-track="event_name" (and optional data-label). */
 (function(){
   var ID='G-7PHFWL1CXN', KEY='starfish-analytics-consent';
-  var loaded=false, scriptAdded=false, stoppedSince=false, gaBlocked=false, banner=null;
+  /* gaState: 'loading' until Google's script loads ('ready') or fails ('blocked'). */
+  var loaded=false, scriptAdded=false, stoppedSince=false, gaState='loading', waiting=[], banner=null;
 
   window.dataLayer=window.dataLayer||[];
   function gtag(){window.dataLayer.push(arguments);}
@@ -54,9 +55,19 @@
     gtag('config',ID,cfg);
     var s=document.createElement('script');
     s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;
-    /* If an ad blocker stops Google's script, events can't be sent. */
-    s.onerror=function(){gaBlocked=true;};
+    /* Events wait until we know whether Google's script loaded; an ad blocker makes it fail. */
+    s.onload=function(){gaState='ready';settle();};
+    s.onerror=function(){gaState='blocked';settle();};
     document.head.appendChild(s);
+  }
+  /* Send or drop the events that were waiting for Google's script. */
+  function settle(){
+    var list=waiting;waiting=[];
+    list.forEach(function(w){
+      var ok=gaState==='ready'&&loaded;
+      if(ok)gtag('event',w.name,w.params);
+      w.resolve(ok);
+    });
   }
   function stop(){
     window['ga-disable-'+ID]=true;
@@ -76,8 +87,14 @@
     });
   }
 
-  /* Send an event only when analytics is on; returns true if it was sent. */
-  window.starfishTrack=function(name,params){if(!loaded||gaBlocked)return false;gtag('event',name,params||{});return true;};
+  /* Send an event only when analytics is on. Returns a promise of true once the event has
+     been handed to Google's loaded script, or false if analytics is off or the script is blocked. */
+  window.starfishTrack=function(name,params){
+    params=params||{};
+    if(!loaded||gaState==='blocked')return Promise.resolve(false);
+    if(gaState==='ready'){gtag('event',name,params);return Promise.resolve(true);}
+    return new Promise(function(resolve){waiting.push({name:name,params:params,resolve:resolve});});
+  };
 
   function showBanner(){
     if(banner){showState();banner.hidden=false;return;}
@@ -102,7 +119,8 @@
   function showState(){
     var el=banner&&banner.querySelector('.sf-state');
     if(!el)return;
-    el.textContent=loaded?'Analytics is currently on.':(stored()==='denied'?'Analytics is currently off.':'Analytics is off until you choose.');
+    el.textContent=loaded&&gaState==='blocked'?'Analytics is currently blocked by your browser, so nothing is collected.':
+      loaded?'Analytics is currently on.':(stored()==='denied'?'Analytics is currently off.':'Analytics is off until you choose.');
   }
 
   var choice=stored();
