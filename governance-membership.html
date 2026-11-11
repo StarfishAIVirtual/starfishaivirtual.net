@@ -269,34 +269,34 @@ footer .els span{font-weight:600}
       <p>Each kit is delivered as a fixed-scope engagement with written outputs you keep. Prices are the same for every member, whatever your size.</p>
     </div>
     <div class="catalog">
-      <div class="item" style="--c:var(--metal)">
+      <div class="item" id="kit-ethical" style="--c:var(--metal)">
         <span class="dot"></span>
         <div><h3>Ethical Gate Kit</h3><p>Define the checkpoints every AI-assisted decision passes before it reaches a customer, and name who can stop it.</p></div>
         <div class="pp"><b data-kit-price="ethical">$795</b><span data-requires="kit:ethical">member price</span></div>
       </div>
-      <div class="item" style="--c:var(--water)">
+      <div class="item" id="kit-authority" style="--c:var(--water)">
         <span class="dot"></span>
         <div><h3>Human-In-Command Authority Map</h3><p>One accountable person for each AI-assisted decision area, written down and agreed by leadership.</p></div>
         <div class="pp"><b data-kit-price="authority">$795</b><span data-requires="kit:authority">member price</span></div>
       </div>
-      <div class="item" style="--c:var(--wood)">
+      <div class="item" id="kit-iteration" style="--c:var(--wood)">
         <span class="dot"></span>
         <div><h3>Iteration Cap Policy</h3><p>An agreed limit on AI retries before a person takes the decision back, tuned to each workflow.</p></div>
         <div class="pp"><b data-kit-price="iteration">$395</b><span data-requires="kit:iteration">member price</span></div>
       </div>
-      <div class="item" style="--c:var(--earth)">
+      <div class="item" id="kit-register" style="--c:var(--earth)">
         <span class="dot"></span>
         <div><h3>AI System Register</h3><p>A current, visible list of every AI tool in use and the person who answers for it.</p></div>
         <div class="pp"><b data-kit-price="register">$495</b><span data-requires="kit:register">member price</span></div>
       </div>
-      <div class="item" style="--c:var(--fire)">
+      <div class="item" id="kit-log" style="--c:var(--fire)">
         <span class="dot"></span>
         <div><h3>Decision Log Setup</h3><p>One consistent log of important AI-assisted decisions, including who overrode the AI and why.</p></div>
         <div class="pp"><b data-kit-price="log">$495</b><span data-requires="kit:log">member price</span></div>
       </div>
       <div class="item bundle" style="--c:var(--gold)">
         <span class="dot"></span>
-        <div><h3>Five-Arm Governance Bundle</h3><p>All <span data-fill="bundle-count">five</span> kits in one engagement, covering every AI system you run. <span data-requires="year1">With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</span></p></div>
+        <div><h3><span data-fill="bundle-name">Five-Arm</span> Governance Bundle</h3><p>All <span data-fill="bundle-count">five</span> kits in one engagement, covering every AI system you run. <span data-requires="year1">With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</span></p></div>
         <div class="pp"><b data-fill="bundle">$2,250</b><span data-requires="bundle-save">save <span data-fill="bundle-save">$725</span></span></div>
       </div>
     </div>
@@ -383,7 +383,7 @@ footer .els span{font-weight:600}
 <footer>
   <div class="wrap">
     <div class="els"><span style="color:var(--metal)">METAL</span> &middot; <span style="color:var(--water)">WATER</span> &middot; <span style="color:var(--wood)">WOOD</span> &middot; <span style="color:var(--earth)">EARTH</span> &middot; <span style="color:var(--fire)">FIRE</span></div>
-    &copy; <span id="y">2026</span> Starfish Enterprises International &middot; San Jose, California &middot; <a href="index.html">Home</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="#" data-cookie-settings>Cookie settings</a>
+    &copy; <span id="y">2026</span> Starfish Enterprises International &middot; San Jose, California &middot; <a href="index.html">Home</a> &middot; <a href="privacy.html">Privacy</a><span data-cookie-settings-wrap hidden> &middot; <a href="#" data-cookie-settings>Cookie settings</a></span>
   </div>
 </footer>
 
@@ -450,6 +450,7 @@ const VALID_KITS=Object.keys(KITS).filter(k=>KIT_OK[k]);
 /* The bundle is offered when its price is valid and it names distinct, listed kits.
    One kit with a bad price doesn't withdraw it; only the "save" figure needs every price. */
 const BUNDLE_KITS=Array.isArray(PRICE.bundleKits)?PRICE.bundleKits:[];
+const BUNDLE_NAME=countWord(BUNDLE_KITS.length)+'-Arm';
 const BUNDLE_OK=(function(){
   if(!Array.isArray(PRICE.bundleKits)){console.error('PRICE.bundleKits must be a list of kit names.');return false;}
   let ok=SCALAR_OK.bundle;
@@ -459,7 +460,6 @@ const BUNDLE_OK=(function(){
     seen.add(k);
     if(!own(KITS,k)){console.error('PRICE.bundleKits names "'+k+'", which is not in PRICE.kits.');ok=false;}
   });
-  if(BUNDLE_KITS.length!==5)console.error('The Five-Arm Bundle copy expects 5 bundle kits; found '+BUNDLE_KITS.length+'.');
   return ok;
 })();
 const SAVE=BUNDLE_OK&&BUNDLE_KITS.every(k=>kitPrice(k)!==undefined)
@@ -470,7 +470,7 @@ const SAVE=BUNDLE_OK&&BUNDLE_KITS.every(k=>kitPrice(k)!==undefined)
   const VALID={member:SCALAR_OK.member,command:SCALAR_OK.command,reward:SCALAR_OK.reward,
     bundle:BUNDLE_OK,year1:BUNDLE_OK&&SCALAR_OK.member,'bundle-save':SAVE>0};
   const V={session:SESSION_CARD,'kit-count':countWord(VALID_KITS.length),
-    'bundle-count':countWord(BUNDLE_KITS.length).toLowerCase(),
+    'bundle-count':countWord(BUNDLE_KITS.length).toLowerCase(),'bundle-name':BUNDLE_NAME,
     'bundle-save':VALID['bundle-save']?fmt(SAVE):null,
     year1:VALID.year1?fmt(PRICE.member+PRICE.bundle):null};
   for(const k in SCALARS)V[k]=VALID[k]?SCALARS[k].show(PRICE[k]):SCALARS[k].fallback;
@@ -527,7 +527,7 @@ function update(){
   const extra=picked.filter(k=>!inBundle.includes(k)).reduce((a,k)=>a+kitPrice(k),0);
   let note='';
   if(BUNDLE_OK&&bundled>PRICE.bundle){
-    note='For these '+inBundle.length+' kits the Five-Arm Bundle is cheaper, so we priced that instead.';
+    note='For these '+inBundle.length+' kits the '+BUNDLE_NAME+' Bundle is cheaper, so we priced that instead.';
     bundled=PRICE.bundle;
   }
   const kitTotal=bundled+extra;
@@ -545,11 +545,18 @@ function update(){
     '<div><span>Command, year one</span><b>'+fmt(command)+'</b>'+
     (credit>0?'<em>plus '+fmtCredit(credit)+' credit toward next year</em>':'')+'</div></div>';
 }
-/* calculator_used is sent once, when the visitor leaves the page, with their final choices. */
-let calcUsed=false,calcSent=false;
+/* calculator_used is sent when the visitor leaves or switches away from the page, with
+   their choices at that moment; it is sent again only if they change their choices after that. */
+let calcUsed=false,calcLast='';
 function used(){update();calcUsed=true;}
-function sendCalc(){if(calcUsed&&!calcSent){calcSent=true;
-  starfishTrack('calculator_used',{ai_systems:+sys.value,kits_selected:kits.querySelectorAll('input:checked').length,transport_type:'beacon'});}}
+function sendCalc(){
+  if(!calcUsed||!window.starfishTrack)return;
+  const p={ai_systems:+sys.value,kits_selected:kits.querySelectorAll('input:checked').length};
+  const key=p.ai_systems+'/'+p.kits_selected;
+  if(key===calcLast)return;
+  calcLast=key;
+  window.starfishTrack('calculator_used',Object.assign({transport_type:'beacon'},p));
+}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')sendCalc();});
 window.addEventListener('pagehide',sendCalc);
 sys.addEventListener('input',used);

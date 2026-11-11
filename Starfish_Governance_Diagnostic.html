@@ -37,6 +37,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .notes ul{margin:0;padding-left:18px}
 .notes li{margin-bottom:6px;color:#e3e7ef}
 .notes .kit{display:block;font-size:13px;color:var(--gold)}
+.notes .kit a{color:var(--gold)}
 .cta{margin-top:16px;color:#d7dce6;font-size:14px}
 .cta a{color:var(--gold)}
 footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 32px}
@@ -63,14 +64,15 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 32px}
 <button id="go" disabled>See where you stand</button>
 <div id="result"></div>
 </main>
-<footer>Starfish AI Virtual &middot; AI Governance Consultancy &middot; Le X. My<br><a data-track="contact_click" data-label="phone" href="tel:+14084399146" style="color:inherit">(408) 439-9146</a> &middot; StarfishAIVirtual@gmail.com<br><a href="privacy.html" style="color:inherit">Privacy</a> &middot; <a href="#" data-cookie-settings style="color:inherit">Cookie settings</a></footer>
+<footer>Starfish AI Virtual &middot; AI Governance Consultancy &middot; Le X. My<br><a data-track="contact_click" data-label="phone" href="tel:+14084399146" style="color:inherit">(408) 439-9146</a> &middot; StarfishAIVirtual@gmail.com<br><a href="privacy.html" style="color:inherit">Privacy</a><span data-cookie-settings-wrap hidden> &middot; <a href="#" data-cookie-settings style="color:inherit">Cookie settings</a></span></footer>
 <script>
+/* kit names and kitId must match the catalog on governance-membership.html (#kit-<id>). */
 const Q=[
-{tag:"Human-In-Command",kit:"Human-In-Command Authority Map",t:"When an AI tool makes a recommendation, who makes the final call?",o:["The AI's output usually goes ahead as it is","Whoever happens to be using the tool decides","A named person reviews it for important matters","A named, accountable person always decides, and it's written down"],tip:"Name one accountable person for each AI-assisted decision area, so the final call is always a human's."},
-{tag:"Ethical Gate",kit:"Ethical Gate Kit",t:"Before an AI-assisted decision reaches a customer or the public, is there a deliberate pause to check it?",o:["Not really, speed comes first","Sometimes, depending on who's involved","Yes, for the most sensitive decisions","Yes, defined checkpoints that every such decision passes through"],tip:"Set a few clear checkpoints where AI-assisted work pauses for a human look before it goes out."},
-{tag:"Accountability",kit:"AI System Register",t:"If you asked today, could your team name who is responsible for each AI system you use?",o:["We'd have to find out","For some of them","For most of them","Yes, there's a current list everyone can see"],tip:"Keep a simple, current register of every AI system and the person who answers for it."},
-{tag:"Iteration Cap",kit:"Iteration Cap Policy",t:"When AI output isn't right, how many attempts happen before a person steps in?",o:["We keep regenerating until something looks acceptable","It depends on the person","There's a rough habit of escalating after a while","There's an agreed limit, after which a person takes over"],tip:"Agree on a small number of AI retries; after that, a person takes the decision back."},
-{tag:"Decision Record",kit:"Decision Log Setup",t:"Is there a record of important AI-assisted decisions, including when someone overrode the AI?",o:["No record is kept","Scattered in emails and chats","Recorded for some areas","Yes, a consistent log with reasons for any override"],tip:"Keep one decision log: what was decided, who decided, and why any AI advice was overridden."}
+{tag:"Human-In-Command",kitId:"authority",kit:"Human-In-Command Authority Map",t:"When an AI tool makes a recommendation, who makes the final call?",o:["The AI's output usually goes ahead as it is","Whoever happens to be using the tool decides","A named person reviews it for important matters","A named, accountable person always decides, and it's written down"],tip:"Name one accountable person for each AI-assisted decision area, so the final call is always a human's."},
+{tag:"Ethical Gate",kitId:"ethical",kit:"Ethical Gate Kit",t:"Before an AI-assisted decision reaches a customer or the public, is there a deliberate pause to check it?",o:["Not really, speed comes first","Sometimes, depending on who's involved","Yes, for the most sensitive decisions","Yes, defined checkpoints that every such decision passes through"],tip:"Set a few clear checkpoints where AI-assisted work pauses for a human look before it goes out."},
+{tag:"Accountability",kitId:"register",kit:"AI System Register",t:"If you asked today, could your team name who is responsible for each AI system you use?",o:["We'd have to find out","For some of them","For most of them","Yes, there's a current list everyone can see"],tip:"Keep a simple, current register of every AI system and the person who answers for it."},
+{tag:"Iteration Cap",kitId:"iteration",kit:"Iteration Cap Policy",t:"When AI output isn't right, how many attempts happen before a person steps in?",o:["We keep regenerating until something looks acceptable","It depends on the person","There's a rough habit of escalating after a while","There's an agreed limit, after which a person takes over"],tip:"Agree on a small number of AI retries; after that, a person takes the decision back."},
+{tag:"Decision Record",kitId:"log",kit:"Decision Log Setup",t:"Is there a record of important AI-assisted decisions, including when someone overrode the AI?",o:["No record is kept","Scattered in emails and chats","Recorded for some areas","Yes, a consistent log with reasons for any override"],tip:"Keep one decision log: what was decided, who decided, and why any AI advice was overridden."}
 ];
 let diagSent=false; /* diagnostic_complete counts once per visit */
 const f=document.getElementById('f'),go=document.getElementById('go'),r=document.getElementById('result');
@@ -85,10 +87,10 @@ if(s<=5){title="AI Version 1.x: Early Foundations";msg="AI is in use, but decisi
 else if(s<=10){title="In Transition toward AI Version 2.0";msg="Good instincts are in place in parts of the organization. The opportunity now is to make them consistent, so they don't depend on who happens to be in the room."}
 else{title="Approaching AI Version 2.0";msg="Humans are clearly in command of your AI. The remaining work is refinement: keeping records current and checkpoints sharp as AI use grows."}
 const pct=Math.round(s/15*100);
-let notes=low.length?'<div class="notes"><h3>Where to look first</h3><ul>'+low.map(q=>'<li><b>'+q.tag+':</b> '+q.tip+' <span class="kit">Matching kit: '+q.kit+'</span></li>').join('')+'</ul></div>':'<div class="notes"><h3>Keep it strong</h3><ul><li>Revisit these five questions every quarter as new AI tools arrive.</li></ul></div>';
+let notes=low.length?'<div class="notes"><h3>Where to look first</h3><ul>'+low.map(q=>'<li><b>'+q.tag+':</b> '+q.tip+' <span class="kit">Matching kit: <a href="governance-membership.html#kit-'+q.kitId+'">'+q.kit+'</a></span></li>').join('')+'</ul></div>':'<div class="notes"><h3>Keep it strong</h3><ul><li>Revisit these five questions every quarter as new AI tools arrive.</li></ul></div>';
 r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">'+(low.length?'Each matching kit above is part of ':'To keep it strong as AI use grows, see ')+'<a data-track="membership_page_click" data-label="diagnostic_result" href="governance-membership.html#catalog">Starfish Governance Membership</a>. Would you like a conversation about these results? Contact Le X. My at <a data-track="contact_click" data-label="email" href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or <a data-track="contact_click" data-label="phone" href="tel:+14084399146">(408) 439-9146</a>.</p>';
 r.style.display='block';
-if(!diagSent){diagSent=true;starfishTrack('diagnostic_complete',{score:s,stage:title});}r.scrollIntoView({behavior:'smooth'});
+if(!diagSent&&window.starfishTrack){diagSent=true;window.starfishTrack('diagnostic_complete',{score:s,stage:title});}r.scrollIntoView({behavior:'smooth'});
 });
 </script>
 </body>
