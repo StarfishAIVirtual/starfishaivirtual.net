@@ -82,7 +82,7 @@ else if(s<=10){title="In Transition toward AI Version 2.0";msg="Good instincts a
 else{title="Approaching AI Version 2.0";msg="Humans are clearly in command of your AI. The remaining work is refinement: keeping records current and checkpoints sharp as AI use grows."}
 const pct=Math.round(s/15*100);
 let notes=low.length?'<div class="notes"><h3>Where to look first</h3><ul>'+low.map(q=>'<li><b>'+q.tag+':</b> '+q.tip+'</li>').join('')+'</ul></div>':'<div class="notes"><h3>Keep it strong</h3><ul><li>Revisit these five questions every quarter as new AI tools arrive.</li></ul></div>';
-r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">Would you like a conversation about these results? Contact Le X. My at <a href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or (408) 439-9146.</p>';
+r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">Each area above matches a kit in <a href="governance-membership.html#catalog">Starfish Governance Membership</a>. Would you like a conversation about these results? Contact Le X. My at <a href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or (408) 439-9146.</p>';
 r.style.display='block';r.scrollIntoView({behavior:'smooth'});
 });
 </script>
