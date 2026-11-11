@@ -101,7 +101,8 @@ r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div cl
 r.style.display='block';
 if(window.starfishTrack){
   const last=diagLast();
-  if(last&&Date.now()-last<VISIT_MS)diagMark(); /* same visit: not counted again, visit extended */
+  /* Same visit: not counted again; the visit is extended only while analytics is on. */
+  if(last&&Date.now()-last<VISIT_MS){if(window.starfishAnalyticsOn&&window.starfishAnalyticsOn())diagMark();}
   else if(window.starfishTrack('diagnostic_complete',{score:s,stage:title}))diagMark();
 }
 r.scrollIntoView({behavior:'smooth'});

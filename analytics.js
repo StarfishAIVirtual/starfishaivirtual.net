@@ -57,7 +57,7 @@
     /* Google's script processes everything already in dataLayer when it loads, so events
        never need to wait here. If an ad blocker makes it fail, later events report "not sent"
        and the banner says analytics is blocked. */
-    s.onerror=function(){gaBlocked=true;};
+    s.onerror=function(){gaBlocked=true;showState();};
     document.head.appendChild(s);
   }
   function stop(){
@@ -90,6 +90,8 @@
   /* Send an event when analytics is on, the standard way: into Google's queue, which its script
      sends once loaded. Returns true if the event was queued, false if analytics is off or Google's
      script is known to be blocked. */
+  /* Whether analytics is on right now (consent given and Google's script not blocked). */
+  window.starfishAnalyticsOn=function(){return loaded&&!gaBlocked;};
   window.starfishTrack=function(name,params){
     if(!loaded||gaBlocked)return false;
     gtag('event',name,params||{});
