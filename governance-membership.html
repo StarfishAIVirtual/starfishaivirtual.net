@@ -203,7 +203,7 @@ footer .els span{font-weight:600}
       <div class="pr" style="--c:var(--water)">
         <div class="n">Rule 2 &middot; Curated Catalog</div>
         <h3>A short shelf of things that work</h3>
-        <p>Six kits, not six hundred services. Each one is built on a Starfish framework and has been refined across many organizations.</p>
+        <p>Five kits and one bundle, not six hundred services. Each one is built on a Starfish framework and has been refined across many organizations.</p>
         <div class="vs"><s>Bespoke everything</s> &rarr; proven, repeatable kits</div>
       </div>
       <div class="pr" style="--c:var(--wood)">
@@ -395,45 +395,59 @@ footer .els span{font-weight:600}
 </footer>
 
 <script>
-/* Prices and founder-session wording are set here. Every [data-fill] element
-   on the page is filled from these values. The HTML also carries the same
-   text for visitors without JavaScript and for search snippets: when you
+/* Prices and the founder-session schedule are set here. Every [data-fill]
+   element on the page is filled from these values. The HTML also carries the
+   same text for visitors without JavaScript and for search snippets: when you
    change a value here, update that text too. The browser console lists any
-   spot that no longer matches. */
+   spot that no longer matches, and any price that isn't a number. */
 const PRICE={member:495,command:1995,bundle:2250,reward:0.10,
-  /* The Five-Arm Bundle is exactly these five kits. */
-  kits:{ethical:795,authority:795,iteration:395,register:495,log:495}};
-const SESSION={card:'Quarterly CEO-to-CEO working session with the founder',
-  calc:'quarterly founder sessions'};
+  kits:{ethical:795,authority:795,iteration:395,register:495,log:495},
+  /* The Five-Arm Bundle covers exactly these kits. */
+  bundleKits:['ethical','authority','iteration','register','log']};
+/* One word, such as Quarterly or Monthly; used on the card and in the calculator. */
+const SESSION_CADENCE='Quarterly';
+const SESSION_CARD=SESSION_CADENCE+' CEO-to-CEO working session with the founder';
+const SESSION_CALC=SESSION_CADENCE.toLowerCase()+' founder sessions';
+
+/* A kit's price, or undefined if the kit isn't listed or its price isn't a number. */
+const kitPrice=k=>Object.prototype.hasOwnProperty.call(PRICE.kits,k)&&Number.isFinite(PRICE.kits[k])?PRICE.kits[k]:undefined;
 
 const USD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
 const USD0=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0});
-/* Whole dollars when the amount is whole, cents otherwise. */
-const fmt=n=>Number.isInteger(n)?USD0.format(n):USD.format(n);
-/* Credit always to the cent, rounded down so it never promises more than earned. */
-const fmtCredit=n=>USD.format(Math.floor(n*100+1e-6)/100);
+/* The one money formatter: rounded to the cent, then whole dollars if whole, cents otherwise. */
+const fmt=n=>{n=Math.round(n*100)/100;return Number.isInteger(n)?USD0.format(n):USD.format(n);};
+/* Credit is rounded down first so it never promises more than earned. */
+const fmtCredit=n=>fmt(Math.floor(n*100+1e-6)/100);
 /* Percentage rounded down to one decimal, for the same reason (7.5% stays 7.5%). */
 const pct=r=>(Math.floor(r*1000+1e-6)/10)+'%';
 
 (function fill(){
   const kitKeys=Object.keys(PRICE.kits);
-  if(kitKeys.length!==5)console.error('The Five-Arm Bundle copy expects 5 kits in PRICE.kits; found '+kitKeys.length+'.');
-  const kitSum=kitKeys.reduce((a,k)=>a+PRICE.kits[k],0);
-  const save=kitSum-PRICE.bundle;
+  kitKeys.forEach(k=>{if(kitPrice(k)===undefined)console.error('PRICE.kits.'+k+' is not a number.');});
+  if(PRICE.bundleKits.length!==5)console.error('The Five-Arm Bundle copy expects 5 bundle kits; found '+PRICE.bundleKits.length+'.');
+  const bundlePrices=PRICE.bundleKits.map(kitPrice);
+  const save=bundlePrices.every(v=>v!==undefined)?bundlePrices.reduce((a,b)=>a+b,0)-PRICE.bundle:NaN;
   const V={member:fmt(PRICE.member),command:fmt(PRICE.command),bundle:fmt(PRICE.bundle),
-    'bundle-save':fmt(save),year1:fmt(PRICE.member+PRICE.bundle),
-    reward:pct(PRICE.reward),session:SESSION.card};
-  for(const k of kitKeys)V['kit-'+k]=fmt(PRICE.kits[k]);
+    year1:fmt(PRICE.member+PRICE.bundle),reward:pct(PRICE.reward),session:SESSION_CARD};
+  if(save>0)V['bundle-save']=fmt(save);
+  kitKeys.forEach(k=>{if(kitPrice(k)!==undefined)V['kit-'+k]=fmt(kitPrice(k));});
+  const warned=new Set();
   document.querySelectorAll('[data-fill]').forEach(el=>{
-    const v=V[el.dataset.fill];
-    if(v===undefined){console.error('No value for data-fill="'+el.dataset.fill+'"');return;}
-    if(el.textContent.trim()!==v)console.warn('Page text "'+el.textContent.trim()+'" for '+el.dataset.fill+' differs from the price list ("'+v+'"); update the HTML too.');
+    const key=el.dataset.fill,v=V[key];
+    if(v===undefined){
+      if(key!=='bundle-save'&&!warned.has(key)){warned.add(key);console.error('No value for data-fill="'+key+'"');}
+      return;
+    }
+    if(el.textContent.trim()!==v&&!warned.has(key)){warned.add(key);
+      console.warn('Page text "'+el.textContent.trim()+'" for '+key+' differs from the price list ("'+v+'"); update the HTML too.');}
     el.textContent=v;
   });
-  const sw=document.getElementById('bundleSave');if(sw)sw.hidden=save<=0;
-  document.querySelectorAll('#kits input').forEach(i=>{
-    if(!(i.dataset.kit in PRICE.kits)){console.error('Calculator kit "'+i.dataset.kit+'" has no price in PRICE.kits.');i.closest('label').hidden=true;}
+  const sw=document.getElementById('bundleSave');if(sw)sw.hidden=!(save>0);
+  const boxes=[...document.querySelectorAll('#kits input')];
+  boxes.forEach(i=>{
+    if(kitPrice(i.dataset.kit)===undefined){console.error('Calculator kit "'+i.dataset.kit+'" has no valid price in PRICE.kits.');i.closest('label').hidden=true;}
   });
+  kitKeys.forEach(k=>{if(!boxes.some(i=>i.dataset.kit===k))console.error('PRICE.kits.'+k+' has no checkbox in the calculator.');});
 })();
 try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}
 
@@ -442,13 +456,17 @@ const sys=document.getElementById('sys'),sysOut=document.getElementById('sysOut'
 
 function update(){
   const n=+sys.value; sysOut.textContent=n;
-  const picked=[...kits.querySelectorAll('input:checked')].map(i=>PRICE.kits[i.dataset.kit]).filter(v=>typeof v==='number');
-  let kitTotal=picked.reduce((a,b)=>a+b,0);
+  const picked=[...kits.querySelectorAll('input:checked')].map(i=>i.dataset.kit).filter(k=>kitPrice(k)!==undefined);
+  /* Only bundle kits can be replaced by the bundle; any other kit is added on top. */
+  const inBundle=picked.filter(k=>PRICE.bundleKits.includes(k));
+  let bundled=inBundle.reduce((a,k)=>a+kitPrice(k),0);
+  const extra=picked.filter(k=>!PRICE.bundleKits.includes(k)).reduce((a,k)=>a+kitPrice(k),0);
   let note='';
-  if(kitTotal>PRICE.bundle){
-    note='For these '+picked.length+' kits the Five-Arm Bundle is cheaper, so we priced that instead.';
-    kitTotal=PRICE.bundle;
+  if(bundled>PRICE.bundle){
+    note='For these '+inBundle.length+' kits the Five-Arm Bundle is cheaper, so we priced that instead.';
+    bundled=PRICE.bundle;
   }
+  const kitTotal=bundled+extra;
   const member=PRICE.member+kitTotal;
   /* The reward is credit toward next year, so it is not taken off the year-one price. */
   const command=PRICE.command+kitTotal;
@@ -456,7 +474,7 @@ function update(){
   const heavy=n>=5;
   const tier=heavy?'Starfish Command Member':'Starfish Member';
   const why=heavy
-    ? 'With '+n+' AI systems in play, the '+SESSION.calc+' and board-ready summary earn their keep.'
+    ? 'With '+n+' AI systems in play, the '+SESSION_CALC+' and board-ready summary earn their keep.'
     : 'With '+n+' AI system'+(n>1?'s':'')+', the standard membership covers what you need.';
   rec.innerHTML='<h3>Suggested: '+tier+'</h3><p>'+why+(note?' '+note:'')+'</p>'+
     '<div class="tot"><div><span>Member, year one</span><b>'+fmt(member)+'</b></div>'+
