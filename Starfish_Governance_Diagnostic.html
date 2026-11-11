@@ -69,7 +69,7 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 32px}
 <button id="go" disabled>See where you stand</button>
 <div id="result"></div>
 </main>
-<footer>Starfish AI Virtual &middot; AI Governance Consultancy &middot; Le X. My<br>(408) 439-9146 &middot; StarfishAIVirtual@gmail.com</footer>
+<footer>Starfish AI Virtual &middot; AI Governance Consultancy &middot; Le X. My<br><a data-track="contact_click" data-label="phone" href="tel:+14084399146" style="color:inherit">(408) 439-9146</a> &middot; StarfishAIVirtual@gmail.com</footer>
 <script>
 const Q=[
 {tag:"Human-In-Command",t:"When an AI tool makes a recommendation, who makes the final call?",o:["The AI's output usually goes ahead as it is","Whoever happens to be using the tool decides","A named person reviews it for important matters","A named, accountable person always decides, and it's written down"],tip:"Name one accountable person for each AI-assisted decision area, so the final call is always a human's."},
@@ -91,7 +91,7 @@ else if(s<=10){title="In Transition toward AI Version 2.0";msg="Good instincts a
 else{title="Approaching AI Version 2.0";msg="Humans are clearly in command of your AI. The remaining work is refinement: keeping records current and checkpoints sharp as AI use grows."}
 const pct=Math.round(s/15*100);
 let notes=low.length?'<div class="notes"><h3>Where to look first</h3><ul>'+low.map(q=>'<li><b>'+q.tag+':</b> '+q.tip+'</li>').join('')+'</ul></div>':'<div class="notes"><h3>Keep it strong</h3><ul><li>Revisit these five questions every quarter as new AI tools arrive.</li></ul></div>';
-r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">Each area above matches a kit in <a data-track="membership_page_click" data-label="diagnostic_result" href="governance-membership.html#catalog">Starfish Governance Membership</a>. Would you like a conversation about these results? Contact Le X. My at <a data-track="contact_click" data-label="email" href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or (408) 439-9146.</p>';
+r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">Each area above matches a kit in <a data-track="membership_page_click" data-label="diagnostic_result" href="governance-membership.html#catalog">Starfish Governance Membership</a>. Would you like a conversation about these results? Contact Le X. My at <a data-track="contact_click" data-label="email" href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or <a data-track="contact_click" data-label="phone" href="tel:+14084399146">(408) 439-9146</a>.</p>';
 r.style.display='block';
 if(typeof gtag==='function')gtag('event','diagnostic_complete',{score:s,stage:title});r.scrollIntoView({behavior:'smooth'});
 });
