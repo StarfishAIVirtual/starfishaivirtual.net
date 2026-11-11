@@ -239,7 +239,7 @@ footer .els span{font-weight:600}
       <div class="tier">
         <h3>Starfish Member</h3>
         <div class="for">For leaders taking their first deliberate steps with AI.</div>
-        <div class="price"><span data-fill="member">$495</span><small> / year</small></div>
+        <div class="price"><span data-fill="member">$495</span><small data-requires="member"> / year</small></div>
         <ul>
           <li>Access to the full governance kit catalog at member prices</li>
           <li>Quarterly Governance Diagnostic review with a written readout</li>
@@ -253,10 +253,10 @@ footer .els span{font-weight:600}
         <span class="badge">Includes founder access</span>
         <h3>Starfish Command Member</h3>
         <div class="for">For organizations running several AI systems in customer-facing work.</div>
-        <div class="price"><span data-fill="command">$1,995</span><small> / year</small></div>
+        <div class="price"><span data-fill="command">$1,995</span><small data-requires="command"> / year</small></div>
         <ul>
           <li>Everything in Starfish Member</li>
-          <li><b><span data-fill="reward">10%</span> back</b> on all kit purchases as credit toward next year</li>
+          <li data-requires="reward"><b><span data-fill="reward">10%</span> back</b> on all kit purchases as credit toward next year</li>
           <li><span data-fill="session">Quarterly CEO-to-CEO working session with the founder</span>, in addition to the Quarterly Governance Diagnostic review</li>
           <li>Priority scheduling for kit delivery</li>
           <li>Annual board-ready AI governance summary</li>
@@ -279,32 +279,32 @@ footer .els span{font-weight:600}
       <div class="item" style="--c:var(--metal)">
         <span class="dot"></span>
         <div><h3>Ethical Gate Kit</h3><p>Define the checkpoints every AI-assisted decision passes before it reaches a customer, and name who can stop it.</p></div>
-        <div class="pp"><b data-fill="kit-ethical">$795</b><span>member price</span></div>
+        <div class="pp"><b data-kit-price="ethical">$795</b><span data-requires="kit:ethical">member price</span></div>
       </div>
       <div class="item" style="--c:var(--water)">
         <span class="dot"></span>
         <div><h3>Human-In-Command Authority Map</h3><p>One accountable person for each AI-assisted decision area, written down and agreed by leadership.</p></div>
-        <div class="pp"><b data-fill="kit-authority">$795</b><span>member price</span></div>
+        <div class="pp"><b data-kit-price="authority">$795</b><span data-requires="kit:authority">member price</span></div>
       </div>
       <div class="item" style="--c:var(--wood)">
         <span class="dot"></span>
         <div><h3>Iteration Cap Policy</h3><p>An agreed limit on AI retries before a person takes the decision back, tuned to each workflow.</p></div>
-        <div class="pp"><b data-fill="kit-iteration">$395</b><span>member price</span></div>
+        <div class="pp"><b data-kit-price="iteration">$395</b><span data-requires="kit:iteration">member price</span></div>
       </div>
       <div class="item" style="--c:var(--earth)">
         <span class="dot"></span>
         <div><h3>AI System Register</h3><p>A current, visible list of every AI tool in use and the person who answers for it.</p></div>
-        <div class="pp"><b data-fill="kit-register">$495</b><span>member price</span></div>
+        <div class="pp"><b data-kit-price="register">$495</b><span data-requires="kit:register">member price</span></div>
       </div>
       <div class="item" style="--c:var(--fire)">
         <span class="dot"></span>
         <div><h3>Decision Log Setup</h3><p>One consistent log of important AI-assisted decisions, including who overrode the AI and why.</p></div>
-        <div class="pp"><b data-fill="kit-log">$495</b><span>member price</span></div>
+        <div class="pp"><b data-kit-price="log">$495</b><span data-requires="kit:log">member price</span></div>
       </div>
       <div class="item bundle" style="--c:var(--gold)">
         <span class="dot"></span>
-        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. <span id="bundleYear1">With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</span></p></div>
-        <div class="pp"><b data-fill="bundle">$2,250</b><span id="bundleSave">save <span data-fill="bundle-save">$725</span></span></div>
+        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. <span data-requires="year1">With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</span></p></div>
+        <div class="pp"><b data-fill="bundle">$2,250</b><span data-requires="bundle-save">save <span data-fill="bundle-save">$725</span></span></div>
       </div>
     </div>
     <p class="fine">Kits are available to members only. Travel outside Silicon Valley, if needed, is billed at cost.</p>
@@ -357,7 +357,7 @@ footer .els span{font-weight:600}
         <summary>Can I buy a kit without a membership?</summary>
         <p>No. Like a warehouse club, the catalog is members only. That's what lets us keep kit prices close to cost.</p>
       </details>
-      <details>
+      <details data-requires="reward">
         <summary>How does the <span data-fill="reward">10%</span> reward work?</summary>
         <p>Command Members earn <span data-fill="reward">10%</span> of what they spend on kits during the membership year as credit, applied to the next year's membership or kits.</p>
       </details>
@@ -395,11 +395,13 @@ footer .els span{font-weight:600}
 </footer>
 
 <script>
-/* Prices and the founder-session schedule are set here. Every [data-fill]
-   element on the page is filled from these values. The HTML also carries the
-   same text for visitors without JavaScript and for search snippets: when you
-   change a value here, update that text too. The browser console lists every
-   spot that no longer matches, and any value that isn't valid. */
+/* Prices and the founder-session schedule are set here. The page is filled
+   from these values: [data-fill] elements get a value, [data-kit-price]
+   elements get a kit's price, and [data-requires] elements are hidden when
+   the value they depend on isn't valid. The HTML also carries the same text
+   for visitors without JavaScript and for search snippets: when you change a
+   value here, update that text too. The browser console lists every spot that
+   no longer matches, and any value that isn't valid. */
 const PRICE={member:495,command:1995,bundle:2250,reward:0.10,
   kits:{ethical:795,authority:795,iteration:395,register:495,log:495},
   /* The Five-Arm Bundle covers exactly these kits. */
@@ -422,27 +424,37 @@ const countWord=n=>WORDS[n]||String(n);
 /* hasOwnProperty.call works in every browser (Object.hasOwn needs iOS 15.4+). */
 const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
 const isMoney=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
+const MONEY_HINT='use a number of dollars, 0 or more.';
 
-/* ---- One validation pass over the price list. Each problem is logged once. ---- */
-const SCALARS={member:{ok:isMoney,show:fmt},command:{ok:isMoney,show:fmt},bundle:{ok:isMoney,show:fmt},
-  reward:{ok:v=>typeof v==='number'&&v>=0&&v<=1,show:pct}};
+/* ---- One validation pass over the price list. Each problem is logged once. ----
+   fallback: what the page shows when the value is invalid (null keeps the page
+   text; elements marked data-requires="<name>" are hidden either way). */
+const SCALARS={
+  member: {ok:isMoney,show:fmt,hint:MONEY_HINT,fallback:'On request'},
+  command:{ok:isMoney,show:fmt,hint:MONEY_HINT,fallback:'On request'},
+  bundle: {ok:isMoney,show:fmt,hint:MONEY_HINT,fallback:'On request'},
+  reward: {ok:v=>typeof v==='number'&&v>=0&&v<=1,show:pct,hint:'use a fraction such as 0.10 for 10%.',fallback:null}};
 const SCALAR_OK={};
 for(const k in SCALARS){
   SCALAR_OK[k]=SCALARS[k].ok(PRICE[k]);
-  if(!SCALAR_OK[k])console.error('PRICE.'+k+' is not valid ('+JSON.stringify(PRICE[k])+')'+(k==='reward'?'; use a fraction such as 0.10 for 10%.':'; use a number of dollars, 0 or more.'));
+  if(!SCALAR_OK[k])console.error('PRICE.'+k+' is not valid ('+JSON.stringify(PRICE[k])+'); '+SCALARS[k].hint);
 }
-const PRICES_OK=Object.values(SCALAR_OK).every(Boolean);
+const PRICES_OK=Object.keys(SCALARS).every(k=>SCALAR_OK[k]);
 
-const KITS=(PRICE.kits&&typeof PRICE.kits==='object')?PRICE.kits:{};
-if(KITS!==PRICE.kits)console.error('PRICE.kits must be an object of kit prices.');
+const KITS_SHAPE_OK=!!PRICE.kits&&typeof PRICE.kits==='object'&&!Array.isArray(PRICE.kits);
+if(!KITS_SHAPE_OK)console.error('PRICE.kits must be written as {name:price, ...}, not '+(Array.isArray(PRICE.kits)?'a list':JSON.stringify(PRICE.kits))+'.');
+const KITS=KITS_SHAPE_OK?PRICE.kits:{};
 const KIT_OK={};
 for(const k of Object.keys(KITS)){
   KIT_OK[k]=isMoney(KITS[k]);
-  if(!KIT_OK[k])console.error('PRICE.kits.'+k+' is not valid ('+JSON.stringify(KITS[k])+'); use a number of dollars, 0 or more.');
+  if(!KIT_OK[k])console.error('PRICE.kits.'+k+' is not valid ('+JSON.stringify(KITS[k])+'); '+MONEY_HINT);
 }
 /* A kit's price, or undefined if the kit isn't listed or its price isn't valid. */
 const kitPrice=k=>own(KIT_OK,k)&&KIT_OK[k]?KITS[k]:undefined;
+const VALID_KITS=Object.keys(KITS).filter(k=>KIT_OK[k]);
 
+/* The bundle is offered when its price is valid and it names distinct, listed kits.
+   One kit with a bad price doesn't withdraw it; only the "save" figure needs every price. */
 const BUNDLE_KITS=Array.isArray(PRICE.bundleKits)?PRICE.bundleKits:[];
 const BUNDLE_OK=(function(){
   if(!Array.isArray(PRICE.bundleKits)){console.error('PRICE.bundleKits must be a list of kit names.');return false;}
@@ -452,39 +464,52 @@ const BUNDLE_OK=(function(){
     if(seen.has(k)){console.error('PRICE.bundleKits lists "'+k+'" more than once.');ok=false;}
     seen.add(k);
     if(!own(KITS,k)){console.error('PRICE.bundleKits names "'+k+'", which is not in PRICE.kits.');ok=false;}
-    else if(kitPrice(k)===undefined)ok=false;
   });
   if(BUNDLE_KITS.length!==5)console.error('The Five-Arm Bundle copy expects 5 bundle kits; found '+BUNDLE_KITS.length+'.');
   return ok;
 })();
+const SAVE=BUNDLE_OK&&BUNDLE_KITS.every(k=>kitPrice(k)!==undefined)
+  ?BUNDLE_KITS.reduce((a,k)=>a+kitPrice(k),0)-PRICE.bundle:NaN;
 
 (function fill(){
-  const save=BUNDLE_OK?BUNDLE_KITS.reduce((a,k)=>a+kitPrice(k),0)-PRICE.bundle:NaN;
-  /* null means "leave the page text alone": the element is hidden or not offered. */
-  const V={session:SESSION_CARD,'kit-count':countWord(Object.keys(KITS).length),
-    'bundle-save':save>0?fmt(save):null,
-    year1:BUNDLE_OK&&SCALAR_OK.member?fmt(PRICE.member+PRICE.bundle):null};
-  /* An invalid price reads "On request"; an invalid reward keeps the page's own wording. */
-  for(const k in SCALARS)V[k]=SCALAR_OK[k]?SCALARS[k].show(PRICE[k]):(k==='reward'?null:'On request');
-  if(!BUNDLE_OK)V.bundle='On request';
+  /* Whether each named value is valid; data-requires uses these names, plus "kit:<name>". */
+  const VALID={member:SCALAR_OK.member,command:SCALAR_OK.command,reward:SCALAR_OK.reward,
+    bundle:BUNDLE_OK,year1:BUNDLE_OK&&SCALAR_OK.member,'bundle-save':SAVE>0};
+  const V={session:SESSION_CARD,'kit-count':countWord(VALID_KITS.length),
+    'bundle-save':VALID['bundle-save']?fmt(SAVE):null,
+    year1:VALID.year1?fmt(PRICE.member+PRICE.bundle):null};
+  for(const k in SCALARS)V[k]=VALID[k]?SCALARS[k].show(PRICE[k]):SCALARS[k].fallback;
+
   const reported=new Set();
   const once=(type,msg)=>{if(!reported.has(msg)){reported.add(msg);console[type](msg);}};
-  document.querySelectorAll('[data-fill]').forEach(el=>{
-    const key=el.dataset.fill,old=el.textContent.trim();
-    let v=V[key];
-    /* Any kit card, including one whose kit was removed from PRICE.kits, shows "On request" without a valid price. */
-    if(key.indexOf('kit-')===0&&key!=='kit-count'){const p=kitPrice(key.slice(4));v=p!==undefined?fmt(p):'On request';}
-    if(v===null)return;
-    if(v===undefined){once('error','No value for data-fill="'+key+'"; the page keeps its text "'+old+'".');return;}
-    if(old!==v)once('warn','Page text "'+old+'" for '+key+' differs from the price list ("'+v+'"); update the HTML too.');
+  const put=(el,label,v)=>{
+    const old=el.textContent.trim();
+    if(old!==v)once('warn','Page text "'+old+'" for '+label+' differs from the price list ("'+v+'"); update the HTML too.');
     el.textContent=v;
+  };
+  document.querySelectorAll('[data-fill]').forEach(el=>{
+    const key=el.dataset.fill;
+    if(!own(V,key)){once('error','No value for data-fill="'+key+'"; the page keeps its text "'+el.textContent.trim()+'".');return;}
+    if(V[key]!==null)put(el,key,V[key]);
   });
-  const sw=document.getElementById('bundleSave');if(sw)sw.hidden=!(save>0);
-  const y1=document.getElementById('bundleYear1');if(y1)y1.hidden=V.year1===null;
+  /* Kit cards, including one whose kit was removed from PRICE.kits, read "On request" without a valid price. */
+  document.querySelectorAll('[data-kit-price]').forEach(el=>{
+    const k=el.dataset.kitPrice,p=kitPrice(k);
+    put(el,'kit '+k,p!==undefined?fmt(p):'On request');
+  });
+  document.querySelectorAll('[data-requires]').forEach(el=>{
+    const r=el.dataset.requires;
+    let ok;
+    if(r.indexOf('kit:')===0)ok=kitPrice(r.slice(4))!==undefined;
+    else if(own(VALID,r))ok=VALID[r];
+    else{once('error','Unknown data-requires="'+r+'".');return;}
+    el.hidden=!ok;
+  });
+
   const boxes=[...document.querySelectorAll('#kits input')];
   boxes.forEach(i=>{
     const k=i.dataset.kit;
-    if(!own(KITS,k))console.error('Calculator kit "'+k+'" is not in PRICE.kits.');
+    if(!own(KITS,k))once('error','Calculator kit "'+k+'" is not in PRICE.kits.');
     if(kitPrice(k)===undefined)i.closest('label').hidden=true;
   });
   Object.keys(KITS).forEach(k=>{if(!boxes.some(i=>i.dataset.kit===k))console.error('PRICE.kits.'+k+' has no checkbox in the calculator.');});
@@ -501,10 +526,10 @@ function update(){
     return;
   }
   const picked=[...kits.querySelectorAll('input:checked')].map(i=>i.dataset.kit).filter(k=>kitPrice(k)!==undefined);
-  /* Only bundle kits can be replaced by the bundle, and only when the bundle is valid; any other kit is added on top. */
-  const inBundle=BUNDLE_OK?picked.filter(k=>BUNDLE_KITS.indexOf(k)!==-1):[];
+  /* Only bundle kits can be replaced by the bundle, and only when the bundle is offered; any other kit is added on top. */
+  const inBundle=BUNDLE_OK?picked.filter(k=>BUNDLE_KITS.includes(k)):[];
   let bundled=inBundle.reduce((a,k)=>a+kitPrice(k),0);
-  const extra=picked.filter(k=>inBundle.indexOf(k)===-1).reduce((a,k)=>a+kitPrice(k),0);
+  const extra=picked.filter(k=>!inBundle.includes(k)).reduce((a,k)=>a+kitPrice(k),0);
   let note='';
   if(BUNDLE_OK&&bundled>PRICE.bundle){
     note='For these '+inBundle.length+' kits the Five-Arm Bundle is cheaper, so we priced that instead.';
