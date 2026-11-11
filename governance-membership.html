@@ -113,6 +113,7 @@ section{padding:72px 0}
 .rec .tot div{flex:1 1 180px;background:var(--navy2);border-radius:10px;padding:12px 14px}
 .rec .tot span{display:block;font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
 .rec .tot b{font-family:Fraunces,serif;font-size:24px}
+.rec .tot em{display:block;font-style:normal;font-size:13px;color:var(--gold-soft);margin-top:2px}
 
 /* guarantee */
 .guar{text-align:center;max-width:760px;margin:0 auto}
@@ -255,7 +256,7 @@ footer .els span{font-weight:600}
         <ul>
           <li>Everything in Starfish Member</li>
           <li><b>10% back</b> on all kit purchases as credit toward next year</li>
-          <li>Quarterly CEO-to-CEO working session with the founder</li>
+          <li id="cmdSession" data-short="quarterly founder sessions">Quarterly CEO-to-CEO working session with the founder, in addition to your diagnostic review</li>
           <li>Priority scheduling for kit delivery</li>
           <li>Annual board-ready AI governance summary</li>
           <li>Membership fee refunded if you cancel</li>
@@ -398,6 +399,8 @@ const PRICE={member:495,command:1995,bundle:2250,reward:0.10};
 const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
 try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}
 
+/* Session wording comes from the Command card (data-short) so the two never disagree. */
+const SESSION=(document.getElementById('cmdSession')||{dataset:{}}).dataset.short||'founder sessions';
 const sys=document.getElementById('sys'),sysOut=document.getElementById('sysOut'),
       kits=document.getElementById('kits'),rec=document.getElementById('rec');
 
@@ -411,15 +414,18 @@ function update(){
     kitTotal=PRICE.bundle;
   }
   const member=PRICE.member+kitTotal;
-  const command=PRICE.command+kitTotal-kitTotal*PRICE.reward;
+  /* The reward is credit toward next year, so it is not taken off the year-one price. */
+  const command=PRICE.command+kitTotal;
+  const credit=kitTotal*PRICE.reward;
   const heavy=n>=5;
   const tier=heavy?'Starfish Command Member':'Starfish Member';
   const why=heavy
-    ? 'With '+n+' AI systems in play, the quarterly working sessions and board-ready summary earn their keep.'
+    ? 'With '+n+' AI systems in play, the '+SESSION+' and board-ready summary earn their keep.'
     : 'With '+n+' AI system'+(n>1?'s':'')+', the standard membership covers what you need.';
   rec.innerHTML='<h3>Suggested: '+tier+'</h3><p>'+why+(note?' '+note:'')+'</p>'+
     '<div class="tot"><div><span>Member, year one</span><b>'+fmt(member)+'</b></div>'+
-    '<div><span>Command, after 10% back</span><b>'+fmt(command)+'</b></div></div>';
+    '<div><span>Command, year one</span><b>'+fmt(command)+'</b>'+
+    (credit>0?'<em>plus '+fmt(credit)+' credit toward next year</em>':'')+'</div></div>';
 }
 let calcSent=false;
 function used(){update();if(!calcSent&&typeof gtag==='function'){calcSent=true;gtag('event','calculator_used',{ai_systems:+sys.value});}}
