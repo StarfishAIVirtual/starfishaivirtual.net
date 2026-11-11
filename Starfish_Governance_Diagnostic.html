@@ -87,10 +87,10 @@ if(s<=5){title="AI Version 1.x: Early Foundations";msg="AI is in use, but decisi
 else if(s<=10){title="In Transition toward AI Version 2.0";msg="Good instincts are in place in parts of the organization. The opportunity now is to make them consistent, so they don't depend on who happens to be in the room."}
 else{title="Approaching AI Version 2.0";msg="Humans are clearly in command of your AI. The remaining work is refinement: keeping records current and checkpoints sharp as AI use grows."}
 const pct=Math.round(s/15*100);
-let notes=low.length?'<div class="notes"><h3>Where to look first</h3><ul>'+low.map(q=>'<li><b>'+q.tag+':</b> '+q.tip+' <span class="kit">Matching kit: <a href="governance-membership.html#kit-'+q.kitId+'">'+q.kit+'</a></span></li>').join('')+'</ul></div>':'<div class="notes"><h3>Keep it strong</h3><ul><li>Revisit these five questions every quarter as new AI tools arrive.</li></ul></div>';
+let notes=low.length?'<div class="notes"><h3>Where to look first</h3><ul>'+low.map(q=>'<li><b>'+q.tag+':</b> '+q.tip+' <span class="kit">Matching kit: <a data-track="membership_page_click" data-label="diagnostic_kit_'+q.kitId+'" href="governance-membership.html#kit-'+q.kitId+'">'+q.kit+'</a></span></li>').join('')+'</ul></div>':'<div class="notes"><h3>Keep it strong</h3><ul><li>Revisit these five questions every quarter as new AI tools arrive.</li></ul></div>';
 r.innerHTML='<h2>'+title+'</h2><div class="score">Score '+s+' of 15</div><div class="bar"><span style="width:'+pct+'%"></span></div><p>'+msg+'</p>'+notes+'<p class="cta">'+(low.length?'Each matching kit above is part of ':'To keep it strong as AI use grows, see ')+'<a data-track="membership_page_click" data-label="diagnostic_result" href="governance-membership.html#catalog">Starfish Governance Membership</a>. Would you like a conversation about these results? Contact Le X. My at <a data-track="contact_click" data-label="email" href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a> or <a data-track="contact_click" data-label="phone" href="tel:+14084399146">(408) 439-9146</a>.</p>';
 r.style.display='block';
-if(!diagSent&&window.starfishTrack){diagSent=true;window.starfishTrack('diagnostic_complete',{score:s,stage:title});}r.scrollIntoView({behavior:'smooth'});
+if(!diagSent&&window.starfishTrack&&window.starfishTrack('diagnostic_complete',{score:s,stage:title}))diagSent=true;r.scrollIntoView({behavior:'smooth'});
 });
 </script>
 </body>
