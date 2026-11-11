@@ -303,7 +303,7 @@ footer .els span{font-weight:600}
       </div>
       <div class="item bundle" style="--c:var(--gold)">
         <span class="dot"></span>
-        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</p></div>
+        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. <span id="bundleYear1">With a <span data-fill="member">$495</span> Starfish Membership, your whole AI portfolio is governed for <span data-fill="year1">$2,745</span> in year one.</span></p></div>
         <div class="pp"><b data-fill="bundle">$2,250</b><span id="bundleSave">save <span data-fill="bundle-save">$725</span></span></div>
       </div>
     </div>
@@ -409,28 +409,6 @@ const SESSION_CADENCE='Quarterly';
 const SESSION_CARD=SESSION_CADENCE+' CEO-to-CEO working session with the founder';
 const SESSION_CALC=SESSION_CADENCE.toLowerCase()+' founder sessions';
 
-/* A kit's price, or undefined if the kit isn't listed or its price isn't a number. */
-const kitPrice=k=>Object.hasOwn(PRICE.kits,k)&&Number.isFinite(PRICE.kits[k])?PRICE.kits[k]:undefined;
-
-/* Membership prices, bundle and reward must be numbers; otherwise the calculator stands down. */
-const BAD_SCALARS=['member','command','bundle','reward'].filter(k=>!Number.isFinite(PRICE[k]));
-BAD_SCALARS.forEach(k=>console.error('PRICE.'+k+' must be a number; found '+JSON.stringify(PRICE[k])+'.'));
-const PRICES_OK=BAD_SCALARS.length===0;
-
-/* The bundle is usable only if its price is valid and it lists distinct kits that all have valid prices. */
-const BUNDLE_OK=(function(){
-  let ok=Number.isFinite(PRICE.bundle);
-  const seen=new Set();
-  PRICE.bundleKits.forEach(k=>{
-    if(seen.has(k)){console.error('PRICE.bundleKits lists "'+k+'" more than once.');ok=false;}
-    seen.add(k);
-    if(!Object.hasOwn(PRICE.kits,k)){console.error('PRICE.bundleKits names "'+k+'", which is not in PRICE.kits.');ok=false;}
-    else if(kitPrice(k)===undefined)ok=false;
-  });
-  if(PRICE.bundleKits.length!==5){console.error('The Five-Arm Bundle copy expects 5 bundle kits; found '+PRICE.bundleKits.length+'.');}
-  return ok;
-})();
-
 const USD=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
 const USD0=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0});
 /* Prices and totals: rounded to the cent, then whole dollars if whole, cents otherwise. */
@@ -441,33 +419,75 @@ const fmtCredit=n=>USD.format(Math.floor(n*100+1e-6)/100);
 const pct=r=>(Math.floor(r*1000+1e-6)/10)+'%';
 const WORDS=['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'];
 const countWord=n=>WORDS[n]||String(n);
+/* hasOwnProperty.call works in every browser (Object.hasOwn needs iOS 15.4+). */
+const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+const isMoney=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
+
+/* ---- One validation pass over the price list. Each problem is logged once. ---- */
+const SCALARS={member:{ok:isMoney,show:fmt},command:{ok:isMoney,show:fmt},bundle:{ok:isMoney,show:fmt},
+  reward:{ok:v=>typeof v==='number'&&v>=0&&v<=1,show:pct}};
+const SCALAR_OK={};
+for(const k in SCALARS){
+  SCALAR_OK[k]=SCALARS[k].ok(PRICE[k]);
+  if(!SCALAR_OK[k])console.error('PRICE.'+k+' is not valid ('+JSON.stringify(PRICE[k])+')'+(k==='reward'?'; use a fraction such as 0.10 for 10%.':'; use a number of dollars, 0 or more.'));
+}
+const PRICES_OK=Object.values(SCALAR_OK).every(Boolean);
+
+const KITS=(PRICE.kits&&typeof PRICE.kits==='object')?PRICE.kits:{};
+if(KITS!==PRICE.kits)console.error('PRICE.kits must be an object of kit prices.');
+const KIT_OK={};
+for(const k of Object.keys(KITS)){
+  KIT_OK[k]=isMoney(KITS[k]);
+  if(!KIT_OK[k])console.error('PRICE.kits.'+k+' is not valid ('+JSON.stringify(KITS[k])+'); use a number of dollars, 0 or more.');
+}
+/* A kit's price, or undefined if the kit isn't listed or its price isn't valid. */
+const kitPrice=k=>own(KIT_OK,k)&&KIT_OK[k]?KITS[k]:undefined;
+
+const BUNDLE_KITS=Array.isArray(PRICE.bundleKits)?PRICE.bundleKits:[];
+const BUNDLE_OK=(function(){
+  if(!Array.isArray(PRICE.bundleKits)){console.error('PRICE.bundleKits must be a list of kit names.');return false;}
+  let ok=SCALAR_OK.bundle;
+  const seen=new Set();
+  BUNDLE_KITS.forEach(k=>{
+    if(seen.has(k)){console.error('PRICE.bundleKits lists "'+k+'" more than once.');ok=false;}
+    seen.add(k);
+    if(!own(KITS,k)){console.error('PRICE.bundleKits names "'+k+'", which is not in PRICE.kits.');ok=false;}
+    else if(kitPrice(k)===undefined)ok=false;
+  });
+  if(BUNDLE_KITS.length!==5)console.error('The Five-Arm Bundle copy expects 5 bundle kits; found '+BUNDLE_KITS.length+'.');
+  return ok;
+})();
 
 (function fill(){
-  const kitKeys=Object.keys(PRICE.kits);
-  kitKeys.forEach(k=>{if(kitPrice(k)===undefined)console.error('PRICE.kits.'+k+' is not a number.');});
-  const save=BUNDLE_OK?PRICE.bundleKits.reduce((a,k)=>a+kitPrice(k),0)-PRICE.bundle:NaN;
-  const V={session:SESSION_CARD,'kit-count':countWord(kitKeys.length),'bundle-save':save>0?fmt(save):''};
-  if(Number.isFinite(PRICE.member))V.member=fmt(PRICE.member);
-  if(Number.isFinite(PRICE.command))V.command=fmt(PRICE.command);
-  if(Number.isFinite(PRICE.bundle))V.bundle=fmt(PRICE.bundle);
-  if(Number.isFinite(PRICE.reward))V.reward=pct(PRICE.reward);
-  if(Number.isFinite(PRICE.member)&&Number.isFinite(PRICE.bundle))V.year1=fmt(PRICE.member+PRICE.bundle);
-  /* A kit without a valid price is offered on request rather than at a stale price. */
-  kitKeys.forEach(k=>{V['kit-'+k]=kitPrice(k)!==undefined?fmt(kitPrice(k)):'On request';});
+  const save=BUNDLE_OK?BUNDLE_KITS.reduce((a,k)=>a+kitPrice(k),0)-PRICE.bundle:NaN;
+  /* null means "leave the page text alone": the element is hidden or not offered. */
+  const V={session:SESSION_CARD,'kit-count':countWord(Object.keys(KITS).length),
+    'bundle-save':save>0?fmt(save):null,
+    year1:BUNDLE_OK&&SCALAR_OK.member?fmt(PRICE.member+PRICE.bundle):null};
+  /* An invalid price reads "On request"; an invalid reward keeps the page's own wording. */
+  for(const k in SCALARS)V[k]=SCALAR_OK[k]?SCALARS[k].show(PRICE[k]):(k==='reward'?null:'On request');
+  if(!BUNDLE_OK)V.bundle='On request';
   const reported=new Set();
   const once=(type,msg)=>{if(!reported.has(msg)){reported.add(msg);console[type](msg);}};
   document.querySelectorAll('[data-fill]').forEach(el=>{
-    const key=el.dataset.fill,v=V[key],old=el.textContent.trim();
-    if(v===undefined){once('error','No valid value for data-fill="'+key+'"; the page keeps its text "'+old+'".');return;}
-    if(key!=='bundle-save'&&old!==v)once('warn','Page text "'+old+'" for '+key+' differs from the price list ("'+v+'"); update the HTML too.');
+    const key=el.dataset.fill,old=el.textContent.trim();
+    let v=V[key];
+    /* Any kit card, including one whose kit was removed from PRICE.kits, shows "On request" without a valid price. */
+    if(key.indexOf('kit-')===0&&key!=='kit-count'){const p=kitPrice(key.slice(4));v=p!==undefined?fmt(p):'On request';}
+    if(v===null)return;
+    if(v===undefined){once('error','No value for data-fill="'+key+'"; the page keeps its text "'+old+'".');return;}
+    if(old!==v)once('warn','Page text "'+old+'" for '+key+' differs from the price list ("'+v+'"); update the HTML too.');
     el.textContent=v;
   });
   const sw=document.getElementById('bundleSave');if(sw)sw.hidden=!(save>0);
+  const y1=document.getElementById('bundleYear1');if(y1)y1.hidden=V.year1===null;
   const boxes=[...document.querySelectorAll('#kits input')];
   boxes.forEach(i=>{
-    if(kitPrice(i.dataset.kit)===undefined){console.error('Calculator kit "'+i.dataset.kit+'" has no valid price in PRICE.kits.');i.closest('label').hidden=true;}
+    const k=i.dataset.kit;
+    if(!own(KITS,k))console.error('Calculator kit "'+k+'" is not in PRICE.kits.');
+    if(kitPrice(k)===undefined)i.closest('label').hidden=true;
   });
-  kitKeys.forEach(k=>{if(!boxes.some(i=>i.dataset.kit===k))console.error('PRICE.kits.'+k+' has no checkbox in the calculator.');});
+  Object.keys(KITS).forEach(k=>{if(!boxes.some(i=>i.dataset.kit===k))console.error('PRICE.kits.'+k+' has no checkbox in the calculator.');});
 })();
 try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}
 
@@ -482,9 +502,9 @@ function update(){
   }
   const picked=[...kits.querySelectorAll('input:checked')].map(i=>i.dataset.kit).filter(k=>kitPrice(k)!==undefined);
   /* Only bundle kits can be replaced by the bundle, and only when the bundle is valid; any other kit is added on top. */
-  const inBundle=BUNDLE_OK?picked.filter(k=>PRICE.bundleKits.includes(k)):[];
+  const inBundle=BUNDLE_OK?picked.filter(k=>BUNDLE_KITS.indexOf(k)!==-1):[];
   let bundled=inBundle.reduce((a,k)=>a+kitPrice(k),0);
-  const extra=picked.filter(k=>!inBundle.includes(k)).reduce((a,k)=>a+kitPrice(k),0);
+  const extra=picked.filter(k=>inBundle.indexOf(k)===-1).reduce((a,k)=>a+kitPrice(k),0);
   let note='';
   if(BUNDLE_OK&&bundled>PRICE.bundle){
     note='For these '+inBundle.length+' kits the Five-Arm Bundle is cheaper, so we priced that instead.';
