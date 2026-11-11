@@ -13,7 +13,7 @@
    data-track="event_name" (and optional data-label). */
 (function(){
   var ID='G-7PHFWL1CXN', KEY='starfish-analytics-consent';
-  var loaded=false, scriptAdded=false, stoppedSince=false, banner=null;
+  var loaded=false, scriptAdded=false, stoppedSince=false, gaBlocked=false, banner=null;
 
   window.dataLayer=window.dataLayer||[];
   function gtag(){window.dataLayer.push(arguments);}
@@ -25,11 +25,16 @@
      (Ceuta and Melilla, Cyprus, Svalbard and the EU's outermost regions). */
   var EU_EXTRA=['Africa/Ceuta','Asia/Nicosia','Asia/Famagusta','Arctic/Longyearbyen','Indian/Reunion','Indian/Mayotte',
     'America/Guadeloupe','America/Martinique','America/Cayenne','America/St_Barthelemy','America/Marigot'];
+  /* Europe/ zones outside the EU/EEA/UK (Russia, Belarus, Türkiye), which get no banner. */
+  var NOT_EU=/^Europe\/(Moscow|Kaliningrad|Samara|Saratov|Ulyanovsk|Astrakhan|Volgograd|Kirov|Simferopol|Minsk|Istanbul)$/;
   function inEurope(){
     try{
       var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+      /* A generic zone (UTC, Etc/...) says nothing about location, so ask to be safe. */
+      if(!tz||/^(UTC|GMT|Etc\/)/.test(tz))return true;
+      if(NOT_EU.test(tz))return false;
       return /^(Europe|Atlantic\/(Canary|Madeira|Azores|Faroe|Reykjavik))/.test(tz)||EU_EXTRA.indexOf(tz)!==-1;
-    }catch(e){return false;}
+    }catch(e){return true;}
   }
   var gpc=navigator.globalPrivacyControl===true;
 
@@ -49,6 +54,8 @@
     gtag('config',ID,cfg);
     var s=document.createElement('script');
     s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;
+    /* If an ad blocker stops Google's script, events can't be sent. */
+    s.onerror=function(){gaBlocked=true;};
     document.head.appendChild(s);
   }
   function stop(){
@@ -70,10 +77,10 @@
   }
 
   /* Send an event only when analytics is on; returns true if it was sent. */
-  window.starfishTrack=function(name,params){if(!loaded)return false;gtag('event',name,params||{});return true;};
+  window.starfishTrack=function(name,params){if(!loaded||gaBlocked)return false;gtag('event',name,params||{});return true;};
 
   function showBanner(){
-    if(banner){banner.hidden=false;return;}
+    if(banner){showState();banner.hidden=false;return;}
     var css=document.createElement('style');
     css.textContent='.sf-consent{position:fixed;left:12px;right:12px;bottom:12px;z-index:50;max-width:720px;margin:0 auto;'+
       'background:#0C1B33;color:#eef2f8;border:1px solid #D4AF37;border-radius:12px;padding:14px 16px;'+
@@ -85,10 +92,17 @@
     banner=document.createElement('div');
     banner.className='sf-consent';banner.setAttribute('role','region');banner.setAttribute('aria-label','Cookie choice');
     banner.innerHTML='<p>We use Google Analytics cookies to see how this site is used. Nothing is used for advertising. '+
-      '<a href="privacy.html">Privacy</a></p><button type="button" class="no">Decline</button><button type="button" class="yes">Accept</button>';
+      '<b class="sf-state"></b> <a href="privacy.html">Privacy</a></p><button type="button" class="no">Decline</button><button type="button" class="yes">Accept</button>';
     banner.querySelector('.yes').onclick=function(){store('granted');banner.hidden=true;load();};
     banner.querySelector('.no').onclick=function(){store('denied');banner.hidden=true;stop();};
     document.body.appendChild(banner);
+    showState();
+  }
+  /* Tell the visitor what their current setting is each time the banner opens. */
+  function showState(){
+    var el=banner&&banner.querySelector('.sf-state');
+    if(!el)return;
+    el.textContent=loaded?'Analytics is currently on.':(stored()==='denied'?'Analytics is currently off.':'Analytics is off until you choose.');
   }
 
   var choice=stored();
