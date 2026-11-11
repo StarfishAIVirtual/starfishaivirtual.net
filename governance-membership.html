@@ -7,6 +7,8 @@
 <script src="analytics.js" defer></script>
 <title>Starfish Governance Membership</title>
 <meta name="description" content="Starfish Governance Membership: AI governance on a membership model. One annual fee, a short catalog of governance kits at published near-cost prices, and a refund if it isn't worth it.">
+<link rel="preload" href="fonts/fraunces-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
 :root{
@@ -551,16 +553,18 @@ function update(){
 }
 /* calculator_used is sent when the visitor leaves or switches away from the page, with
    their choices at that moment; it is sent again only if they change their choices after that. */
-let calcUsed=false,calcLast='';
+let calcUsed=false,calcLast='',calcPending='';
 function used(){update();calcUsed=true;}
 function sendCalc(){
   if(!calcUsed||!window.starfishTrack)return;
   const picked=[...kits.querySelectorAll('input:checked')].map(i=>i.dataset.kit).filter(k=>kitPrice(k)!==undefined);
   const p={ai_systems:+sys.value,kits_selected:picked.length};
   const key=p.ai_systems+'/'+picked.join(',');
-  if(key===calcLast)return;
+  if(key===calcLast||key===calcPending)return;
   /* Remember the choices only once the event was really sent (analytics may be off until Accept). */
-  if(window.starfishTrack('calculator_used',Object.assign({transport_type:'beacon'},p)))calcLast=key;
+  calcPending=key;
+  window.starfishTrack('calculator_used',Object.assign({transport_type:'beacon'},p)).then(ok=>{
+    if(calcPending===key)calcPending='';if(ok)calcLast=key;});
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')sendCalc();});
 window.addEventListener('pagehide',sendCalc);
