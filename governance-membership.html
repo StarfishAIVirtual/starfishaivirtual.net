@@ -249,14 +249,14 @@ footer .els span{font-weight:600}
         <a class="btn ghost" href="#join" data-track="membership_join_click" data-label="become_member">Become a Member</a>
       </div>
       <div class="tier best">
-        <span class="badge">Best value for AI-heavy teams</span>
+        <span class="badge">For AI-heavy teams</span>
         <h3>Starfish Command Member</h3>
         <div class="for">For organizations running several AI systems in customer-facing work.</div>
         <div class="price" data-price="command">$1,995<small> / year</small></div>
         <ul>
           <li>Everything in Starfish Member</li>
           <li><b>10% back</b> on all kit purchases as credit toward next year</li>
-          <li id="cmdSession" data-short="quarterly founder sessions">Quarterly CEO-to-CEO working session with the founder, in addition to your diagnostic review</li>
+          <li>Quarterly CEO-to-CEO working session with the founder, in addition to the quarterly diagnostic review</li>
           <li>Priority scheduling for kit delivery</li>
           <li>Annual board-ready AI governance summary</li>
           <li>Membership fee refunded if you cancel</li>
@@ -302,7 +302,7 @@ footer .els span{font-weight:600}
       </div>
       <div class="item bundle" style="--c:var(--gold)">
         <span class="dot"></span>
-        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. With a Starfish Membership, your whole AI portfolio is governed for under $3,000 in year one.</p></div>
+        <div><h3>Five-Arm Governance Bundle</h3><p>All five kits in one engagement, covering every AI system you run. With a $495 Starfish Membership, your whole AI portfolio is governed for under $3,000 in year one.</p></div>
         <div class="pp"><b>$2,250</b><span>save $725</span></div>
       </div>
     </div>
@@ -397,10 +397,10 @@ footer .els span{font-weight:600}
 /* Pricing lives here so it can be changed in one place. */
 const PRICE={member:495,command:1995,bundle:2250,reward:0.10};
 const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
+/* Credit keeps its cents (e.g. $79.50) so the page never promises more than 10%. */
+const fmtCents=n=>{n=Math.round(n*100)/100;return '$'+n.toLocaleString('en-US',Number.isInteger(n)?{}:{minimumFractionDigits:2,maximumFractionDigits:2});};
 try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}
 
-/* Session wording comes from the Command card (data-short) so the two never disagree. */
-const SESSION=(document.getElementById('cmdSession')||{dataset:{}}).dataset.short||'founder sessions';
 const sys=document.getElementById('sys'),sysOut=document.getElementById('sysOut'),
       kits=document.getElementById('kits'),rec=document.getElementById('rec');
 
@@ -420,12 +420,12 @@ function update(){
   const heavy=n>=5;
   const tier=heavy?'Starfish Command Member':'Starfish Member';
   const why=heavy
-    ? 'With '+n+' AI systems in play, the '+SESSION+' and board-ready summary earn their keep.'
+    ? 'With '+n+' AI systems in play, the founder sessions and board-ready summary earn their keep.'
     : 'With '+n+' AI system'+(n>1?'s':'')+', the standard membership covers what you need.';
   rec.innerHTML='<h3>Suggested: '+tier+'</h3><p>'+why+(note?' '+note:'')+'</p>'+
     '<div class="tot"><div><span>Member, year one</span><b>'+fmt(member)+'</b></div>'+
     '<div><span>Command, year one</span><b>'+fmt(command)+'</b>'+
-    (credit>0?'<em>plus '+fmt(credit)+' credit toward next year</em>':'')+'</div></div>';
+    (credit>0?'<em>plus '+fmtCents(credit)+' credit toward next year</em>':'')+'</div></div>';
 }
 let calcSent=false;
 function used(){update();if(!calcSent&&typeof gtag==='function'){calcSent=true;gtag('event','calculator_used',{ai_systems:+sys.value});}}
