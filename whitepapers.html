@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Google Analytics with cookie choice: see analytics.js -->
+<script src="analytics.js" defer></script>
+<title>Free White Papers · Starfish AI Virtual</title>
+<meta name="description" content="Three free Starfish white papers on keeping humans in command of AI: Humans Stay in Command, Why Autonomous AI Needs a Stop Rule, and What Your Auditors Will Ask About AI.">
+<link rel="preload" href="fonts/fraunces-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{
+  --navy:#0C1B33; --navy2:#13284a; --navy3:#1c3560;
+  --gold:#D4AF37; --gold-soft:#e9d58c;
+  --ink:#eef2f8; --muted:#b4c0d3;
+  --wood:#22C55E; --fire:#EF4444; --earth:#F59E0B; --metal:#FFD700; --water:#3B82F6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--gold-soft)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;line-height:1.15;font-weight:700}
+
+header{position:sticky;top:0;z-index:10;background:rgba(12,27,51,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(212,175,55,.25)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand svg{width:38px;height:38px}
+.brand b{font-family:Fraunces,serif;letter-spacing:.08em;font-size:15px;display:block;line-height:1.1}
+.brand small{color:var(--gold);font-size:10px;letter-spacing:.2em;display:block}
+nav a{color:var(--muted);text-decoration:none;font-size:14px;margin-left:22px}
+nav a:hover{color:var(--gold)}
+@media(max-width:640px){nav{display:none}}
+
+.hero{padding:70px 0 56px;text-align:center;background:radial-gradient(ellipse at top,var(--navy3),var(--navy) 70%)}
+.eyebrow{color:var(--gold);letter-spacing:.22em;font-size:12px;font-weight:600;text-transform:uppercase}
+.hero h1{font-size:clamp(32px,5.6vw,54px);margin:14px auto 18px;max-width:820px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p.lead{color:var(--muted);font-size:clamp(16px,2.2vw,19px);max-width:660px;margin:0 auto}
+.btn{display:inline-block;padding:12px 22px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;transition:transform .15s;text-align:center}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary{background:var(--gold);color:var(--navy)}
+.btn.ghost{border:1px solid var(--gold);color:var(--gold)}
+
+section{padding:64px 0}
+.sec-head{text-align:center;margin-bottom:40px}
+.sec-head h2{font-size:clamp(26px,4.2vw,38px);margin-top:10px}
+.sec-head p{color:var(--muted);max-width:640px;margin:12px auto 0}
+
+/* papers */
+.papers{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.paper{background:var(--navy2);border:1px solid rgba(212,175,55,.3);border-top:4px solid var(--c);border-radius:14px;padding:28px;display:flex;flex-direction:column}
+.paper .n{color:var(--c);font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+.paper h3{font-size:24px;margin:10px 0 6px}
+.paper .sub{color:var(--gold-soft);font-size:15px;margin-bottom:14px}
+.paper ul{list-style:none;color:var(--muted);font-size:14.5px;display:grid;gap:7px;margin-bottom:22px}
+.paper li{padding-left:18px;position:relative}
+.paper li:before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--c)}
+.paper .q{font-family:Fraunces,serif;font-style:italic;color:var(--ink);font-size:15px;margin-bottom:20px}
+.paper .btn{margin-top:auto}
+.paper small{display:block;text-align:center;color:var(--muted);font-size:12px;margin-top:8px}
+.test{margin-top:34px;text-align:center;color:var(--muted)}
+.test b{color:var(--ink)}
+
+/* pricing teaser */
+.price{background:var(--navy2)}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px}
+.tier{background:var(--navy);border:1px solid rgba(212,175,55,.3);border-radius:14px;padding:24px;text-align:center}
+.tier.hl{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.tier .lbl{color:var(--gold);font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+.tier .amt{font-family:Fraunces,serif;font-size:34px;margin:8px 0 2px}
+.tier .per{color:var(--muted);font-size:13px}
+.tier p{color:var(--muted);font-size:14px;margin-top:12px}
+.cta{text-align:center;margin-top:34px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+.contact{text-align:center;padding:56px 0}
+.contact p{color:var(--muted)}
+.contact ul{list-style:none;margin-top:16px;display:grid;gap:8px}
+.contact li a{text-decoration:none;font-size:17px}
+.contact li.li a{white-space:nowrap;font-size:15px}
+footer{border-top:1px solid rgba(212,175,55,.25);padding:26px 0;text-align:center;color:var(--muted);font-size:13px}
+footer .els{letter-spacing:.2em;font-size:11px;margin-bottom:8px}
+footer .els span{font-weight:600}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <path id="arm" d="M0,-10 C16,-24 11,-74 0,-92 C-11,-74 -16,-24 0,-10Z"/>
+    <linearGradient id="shine" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#fff" stop-opacity=".45"/>
+      <stop offset=".6" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <g id="star">
+      <circle r="98" fill="none" stroke="#D4AF37" stroke-width="3"/>
+      <g transform="rotate(0)"><use href="#arm" fill="#FFD700"/><use href="#arm" fill="url(#shine)"/></g>
+      <g transform="rotate(72)"><use href="#arm" fill="#3B82F6"/><use href="#arm" fill="url(#shine)"/></g>
+      <g transform="rotate(144)"><use href="#arm" fill="#22C55E"/><use href="#arm" fill="url(#shine)"/></g>
+      <g transform="rotate(216)"><use href="#arm" fill="#F59E0B"/><use href="#arm" fill="url(#shine)"/></g>
+      <g transform="rotate(288)"><use href="#arm" fill="#EF4444"/><use href="#arm" fill="url(#shine)"/></g>
+      <circle r="17" fill="#0C1B33" stroke="#D4AF37" stroke-width="2.5"/>
+    </g>
+  </defs>
+</svg>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="index.html">
+      <svg viewBox="-102 -102 204 204" aria-hidden="true"><use href="#star"/></svg>
+      <span><b>STARFISH AI VIRTUAL</b><small>WHITE PAPERS</small></span>
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="#papers">White Papers</a>
+      <a href="#pricing">Pricing</a>
+      <a href="Starfish_Governance_Diagnostic.html">Diagnostic</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Free &middot; No sign-up</div>
+    <h1>Keep humans <em>in command</em> of AI.</h1>
+    <p class="lead">Three short Starfish white papers for CEOs and boards. Each one answers a question your organization will be asked about AI, before someone asks it.</p>
+  </div>
+</section>
+
+<section id="papers">
+  <div class="wrap">
+    <div class="papers">
+
+      <article class="paper" style="--c:var(--metal)">
+        <div class="n">White Paper No. 1</div>
+        <h3>Humans Stay in Command</h3>
+        <p class="sub">A practical framework for governing consequential AI decisions</p>
+        <p class="q">Capability never eliminates accountability.</p>
+        <ul>
+          <li>The four-question Starfish Test</li>
+          <li>Four levels of AI consequence, HIC-1 to HIC-4</li>
+          <li>Four Ethical Gate decisions, from Proceed to Stop</li>
+          <li>The difference between "in the loop" and in command</li>
+        </ul>
+        <a class="btn primary" data-track="whitepaper_download" data-label="wp1_humans_stay_in_command" href="https://drive.google.com/file/d/13ZlrkBcJaeygkyu3FO0VbF5GY2074zqz/view" target="_blank" rel="noopener">Read free (PDF)</a>
+        <small>Opens in a new tab</small>
+      </article>
+
+      <article class="paper" style="--c:var(--fire)">
+        <div class="n">White Paper No. 2</div>
+        <h3>Why Autonomous AI Needs a Stop Rule</h3>
+        <p class="sub">The Iteration Cap: keeping AI agents predictable, affordable and accountable</p>
+        <p class="q">Set a limit, and when the AI reaches it, a person decides.</p>
+        <ul>
+          <li>Four ways agents fail without limits</li>
+          <li>Caps on actions, time, cost and data access</li>
+          <li>What happens at the cap, and who is told</li>
+          <li>Five questions to ask about any AI agent</li>
+        </ul>
+        <a class="btn primary" data-track="whitepaper_download" data-label="wp2_stop_rule" href="https://drive.google.com/file/d/1eKrJzz1oCJ1BY27Drvu-NoFXiZgYzDYy/view" target="_blank" rel="noopener">Read free (PDF)</a>
+        <small>Opens in a new tab</small>
+      </article>
+
+      <article class="paper" style="--c:var(--water)">
+        <div class="n">White Paper No. 3</div>
+        <h3>What Your Auditors Will Ask About AI</h3>
+        <p class="sub">Building decision evidence before someone asks "who decided this, and why?"</p>
+        <p class="q">Logs show what the system did. Evidence shows what you decided.</p>
+        <ul>
+          <li>The five groups of questions auditors ask</li>
+          <li>Why system logs are not decision evidence</li>
+          <li>The eight-element Starfish Evidence Record</li>
+          <li>A five-point readiness checklist</li>
+        </ul>
+        <a class="btn primary" data-track="whitepaper_download" data-label="wp3_auditors" href="https://drive.google.com/file/d/1ayn9_p5j9WQjsbMkhpq-_bJlqyLPkWN6/view" target="_blank" rel="noopener">Read free (PDF)</a>
+        <small>Opens in a new tab</small>
+      </article>
+
+    </div>
+    <p class="test">Not sure where to start? <b>Take the free 2-minute</b> <a data-track="diagnostic_start_click" data-label="whitepapers_page" href="Starfish_Governance_Diagnostic.html">AI Governance Diagnostic</a>.</p>
+  </div>
+</section>
+
+<section class="price" id="pricing">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Pricing</div>
+      <h2>Ready to go further?</h2>
+      <p>Start free. Grow into membership when it's worth it to you.</p>
+    </div>
+    <div class="tiers">
+      <div class="tier">
+        <div class="lbl">First conversation</div>
+        <div class="amt">Free</div>
+        <div class="per">30 minutes on Zoom</div>
+        <p>Talk with founder Le X. My about where your organization stands.</p>
+      </div>
+      <div class="tier">
+        <div class="lbl">Starfish Member</div>
+        <div class="amt">$495</div>
+        <div class="per">per year</div>
+        <p>Member prices on every governance kit, from $395.</p>
+      </div>
+      <div class="tier hl">
+        <div class="lbl">Command Member</div>
+        <div class="amt">$1,995</div>
+        <div class="per">per year</div>
+        <p>Includes a quarterly CEO-to-CEO session with the founder.</p>
+      </div>
+      <div class="tier">
+        <div class="lbl">Founding-client pilot</div>
+        <div class="amt">$5,000</div>
+        <div class="per">and up, fixed scope</div>
+        <p>Starfish frameworks put in place in your organization.</p>
+      </div>
+    </div>
+    <div class="cta">
+      <a class="btn primary" data-track="membership_page_click" data-label="whitepapers_pricing" href="governance-membership.html">See full membership details</a>
+      <a class="btn ghost" data-track="contact_click" data-label="email_free_call" href="mailto:StarfishAIVirtual@gmail.com?subject=Free%2030-minute%20Zoom%20conversation">Book the free Zoom call</a>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="eyebrow">Contact</div>
+    <p style="margin-top:10px">Le X. My &middot; Founder, Starfish AI Virtual</p>
+    <ul>
+      <li><a data-track="contact_click" data-label="phone" href="tel:+14084399146">(408) 439-9146</a></li>
+      <li><a data-track="contact_click" data-label="email" href="mailto:StarfishAIVirtual@gmail.com">StarfishAIVirtual@gmail.com</a></li>
+      <li class="li"><a data-track="contact_click" data-label="linkedin" href="https://www.linkedin.com/in/le-my-8201b938" target="_blank" rel="noopener">www.linkedin.com/in/le-my-8201b938</a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="els"><span style="color:var(--metal)">METAL</span> &middot; <span style="color:var(--water)">WATER</span> &middot; <span style="color:var(--wood)">WOOD</span> &middot; <span style="color:var(--earth)">EARTH</span> &middot; <span style="color:var(--fire)">FIRE</span></div>
+    &copy; <span id="y">2026</span> Starfish Enterprises International &middot; San Jose, California &middot; <a href="privacy.html">Privacy</a><span data-cookie-settings-wrap hidden> &middot; <a href="#" data-cookie-settings>Cookie settings</a></span>
+  </div>
+</footer>
+<script>try{document.getElementById('y').textContent=new Date().getFullYear()}catch(e){}</script>
+</body>
+</html>
